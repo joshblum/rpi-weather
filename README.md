@@ -22,6 +22,8 @@ A brief description of the various software components.
 # Dependencies
 *  Adafruit Python Library for LED Backpacks
     * https://github.com/adafruit/Adafruit_Python_LED_Backpack
+# Setup
+* Enable I0C: https://www.raspberrypi-spy.co.uk/2014/11/enabling-the-i2c-interface-on-the-raspberry-pi/
 
 # Install
 Simply clone this repo and run:
