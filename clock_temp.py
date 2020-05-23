@@ -1,5 +1,5 @@
 import datetime
-from weather import reset_display, get_noaa_forecast, display_clock, display_forecast
+from weather import reset_display, get_noaa_forecast, display_clock, display_forecast, print_forecast
 
 #-------------------------------------------------------------------------------
 #  M A I N

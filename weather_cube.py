@@ -1,15 +1,11 @@
 import datetime
-from weather import reset_display, get_noaa_forecast
+import time
+from weather import reset_display, get_noaa_forecast, print_forecast, display_cube
 
 #-------------------------------------------------------------------------------
 #  M A I N
 #-------------------------------------------------------------------------------
 
-def display_forecast(forecast=None):
-    """Display forecast as icons on LED 8x8 matrices."""
-    if forecast == None:
-        return
-    display.scroll_raw64(LED8x8ICONS[forecast.condition_icon], 0)
 
 if __name__ == "__main__":
     reset_display()
@@ -21,7 +17,7 @@ if __name__ == "__main__":
             print 'Fetching new forecast'
             forecast = get_noaa_forecast()
             print_forecast(forecast)
-            display_forecast(forecast)
+            display_cube(forecast)
             time.sleep(timeout)
         except Exception as e:
             print('unhandled exception', e)
