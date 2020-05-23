@@ -13,10 +13,10 @@ import sys
 import json
 import ConfigParser
 
-from rpi_weather import RpiWeather
+from led_disp import LEDDisplay
 from led8x8icons import LED8x8ICONS
 
-display = RpiWeather()
+display = LEDDisplay()
 
 FORECASTIO_URL    = "api.forecast.io"
 REQ_BASE    = r"/forecast/"

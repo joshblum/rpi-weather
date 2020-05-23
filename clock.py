@@ -9,12 +9,12 @@
 #===============================================================================
 import time
 
-from rpi_weather import RpiWeather
+from led_disp import LEDDisplay
 from led8x8icons import LED8x8ICONS as ICONS
 
-display = RpiWeather()
+display = LEDDisplay()
 
-def time2int(time_struct, format24=False):
+def time2int(time_struct, format24=True):
     """Convert time, passed in as a time.struct_time object, to an integer with
     hours in the hundreds place and minutes in the units place. Returns 24
     hour format if format24 is True, 12 hour format (default) otherwise.
@@ -35,23 +35,18 @@ def update_display(new_val, old_val):
         return
     for i in xrange(3,-1,-1):
         new_d = new_val % 10
-        old_d = old_val % 10
-        if i == 0 and new_d == 0:
-            # removes zero padding
-            display.scroll_raw64(ICONS['ALL_OFF'], i)           
-        elif new_d != old_d:
-            display.scroll_raw64(ICONS['{0}'.format(new_d)], i)
+        display.scroll_raw64(ICONS['{0}'.format(new_d)], i)
         new_val /= 10
-        old_val /= 10
 
 #-------------------------------------------------------------------------------
 #  M A I N
 #-------------------------------------------------------------------------------
-old_val = time2int(time.localtime())
-display.disp_number(old_val)
-while True:
-    """Loop forever, updating every 2 seconds."""
-    new_val = time2int(time.localtime())
-    update_display(new_val, old_val)
-    old_val = new_val
-    time.sleep(2)
+if __name__ == '__main__':
+    old_val = time2int(time.localtime())
+    display.disp_number(old_val)
+    while True:
+        """Loop forever, updating every 2 seconds."""
+        new_val = time2int(time.localtime())
+        update_display(new_val, old_val)
+        old_val = new_val
+        time.sleep(2)

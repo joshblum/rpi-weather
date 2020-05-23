@@ -19,10 +19,10 @@ import sys
 import json
 import ConfigParser
 
-from rpi_weather import RpiWeather
+from led_disp import LEDDisplay
 from led8x8icons import LED8x8ICONS
 
-display = RpiWeather()
+display = LEDDisplay()
 
 METOFFICE_URL    = "datapoint.metoffice.gov.uk"
 REQ_BASE    = r"/public/data/val/wxfcs/all/json/"

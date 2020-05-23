@@ -13,10 +13,10 @@ import sys
 import json
 import ConfigParser
 
-from rpi_weather import RpiWeather
+from led_disp import LEDDisplay
 from led8x8icons import LED8x8ICONS
 
-display = RpiWeather()
+display = LEDDisplay()
 
 OPENWEATHER_URL    = "api.openweathermap.org"
 REQ_BASE    = r"/data/2.5/forecast?"
