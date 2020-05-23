@@ -12,8 +12,6 @@ import time
 from led_disp import LEDDisplay
 from led8x8icons import LED8x8ICONS as ICONS
 
-display = LEDDisplay()
-
 def time2int(time_struct, format24=True):
     """Convert time, passed in as a time.struct_time object, to an integer with
     hours in the hundreds place and minutes in the units place. Returns 24
@@ -27,7 +25,7 @@ def time2int(time_struct, format24=True):
         h = h if h <= 12 else h - 12
     return h*100+m
 
-def update_display(new_val, old_val):
+def update_display(display, new_val, old_val):
     """Update the display, one digit at a time, where values differ."""
     if not (isinstance(new_val, int) and isinstance(old_val, int)):
         return
@@ -43,10 +41,11 @@ def update_display(new_val, old_val):
 #-------------------------------------------------------------------------------
 if __name__ == '__main__':
     old_val = time2int(time.localtime())
+    display = LEDDisplay()
     display.disp_number(old_val)
     while True:
         """Loop forever, updating every 2 seconds."""
         new_val = time2int(time.localtime())
-        update_display(new_val, old_val)
+        update_display(display, new_val, old_val)
         old_val = new_val
         time.sleep(2)

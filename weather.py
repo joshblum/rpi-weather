@@ -41,9 +41,7 @@ TIME_FORMAT = "12+hourly"
 HEADERS     = {"User-Agent":"Mozilla/5.0"}
 Forecast = namedtuple('Forecast', ['maximum', 'minimum', 'conditions', 'condition_icon'])
 
-display = LEDDisplay()
-
-def reset_display():
+def reset_display(display):
     for matrix in xrange(4):
         display.set_raw64(LED8x8ICONS['UNKNOWN'],matrix)
 
@@ -144,7 +142,7 @@ def normalize_daily_forecast(condition):
     print 'Missing icon for daily forecast', condition
     return 'UNKNOWN'
 
-def display_cube(forecast=None):
+def display_cube(display, forecast=None):
     """Display forecast as icons on LED 8x8 matrices."""
     if forecast == None:
         return
@@ -162,7 +160,7 @@ def display_cube(forecast=None):
         icon = '{0}'.format(d)
     display.scroll_raw64(LED8x8ICONS[icon], 0)
 
-def display_forecast(forecast=None, show_hi=True):
+def display_forecast(display, forecast=None, show_hi=True):
     """Display forecast as icons on LED 8x8 matrices."""
     if forecast == None:
         return
@@ -185,7 +183,7 @@ def display_forecast(forecast=None, show_hi=True):
     for i, d in enumerate(reversed(digits)):
         display.scroll_raw64(LED8x8ICONS['{0}'.format(d)], i+offset)
 
-def display_msg(msg, delay):
+def display_msg(display, msg, delay):
     for i, char in enumerate(msg):
         idx = i % 4
         icon = char.upper().strip()
@@ -193,7 +191,7 @@ def display_msg(msg, delay):
             icon = 'ALL_OFF'
         display.scroll_raw64(LED8x8ICONS[icon], idx, delay)
 
-def display_clock():
+def display_clock(display):
     old_val = time2int(time.localtime())
     display.disp_number(old_val, scroll=True)
 
@@ -204,7 +202,8 @@ if __name__ == "__main__":
     if len(sys.argv) > 1:
         ZIPCODE = validate_zip(sys.argv[1])
 
-    reset_display()
+    display = LEDDisplay()
+    reset_display(display)
     forecast = get_noaa_forecast()
     print_forecast(forecast)
     last_fetched = datetime.datetime.now()
@@ -221,9 +220,9 @@ if __name__ == "__main__":
                 print_forecast(forecast)
 
             if i == 0 or forecast is None:
-                display_clock()
+                display_clock(display)
             else:
-                display_forecast(forecast, show_hi=show_hi)
+                display_forecast(display, forecast, show_hi=show_hi)
                 show_hi = not show_hi
             time.sleep(2)
 

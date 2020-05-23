@@ -14,12 +14,10 @@ from led8x8icons import LED8x8ICONS
 class LEDDisplay():
     """Class for interfacing to Raspberry Pi with four Adafruit 8x8 LEDs attached."""
     
-    def __init__(self, ):
+    def __init__(self, size=4):
         self.matrix = []
-        self.matrix.append(Matrix8x8.Matrix8x8(address=0x70, busnum=1))
-        self.matrix.append(Matrix8x8.Matrix8x8(address=0x71, busnum=1))
-        self.matrix.append(Matrix8x8.Matrix8x8(address=0x72, busnum=1))
-        self.matrix.append(Matrix8x8.Matrix8x8(address=0x73, busnum=1))
+        for i in range(size):
+            self.matrix.append(Matrix8x8.Matrix8x8(address=0x70+i, busnum=1))
         for m in self.matrix:
             m.begin()
           
