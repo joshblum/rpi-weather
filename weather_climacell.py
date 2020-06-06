@@ -245,6 +245,7 @@ if __name__ == "__main__":
 
             i += 1
             i %= 5
+            display.clear_display()
         except Exception as e:
             print('unhandled exception', e)
             time.sleep(2)
