@@ -12,7 +12,7 @@ from Adafruit_LED_Backpack import Matrix8x8
 from led8x8icons import LED8x8ICONS
 
 
-def reset_display(disp_number):
+def reset_display(display):
     for matrix in xrange(4):
         display.set_raw64(LED8x8ICONS['UNKNOWN'], matrix)
 
@@ -77,7 +77,7 @@ class LEDDisplay():
                 self.matrix[matrix].set_pixel(x, y, pixel_bit)
         self.write_display(matrix)
 
-    def scroll_raw64(self, value, matrix=0, delay=0.15):
+    def scroll_raw64(self, value, matrix=0, delay=0.1):
         """Scroll out the current bitmap with the supplied bitmap. Can also
         specify a matrix (0-3) and a delay to set scroll rate.
         """

@@ -60,9 +60,8 @@ synonym_map = {
     ],
 }
 
-Forecast = namedtuple(
-    'Forecast', ['conditions', 'temp', 'condition_icon', 'moon_icon'])
-# display = LEDDisplay()
+Prediction = namedtuple('Prediction', ['temp', 'condition_icon', 'moon_icon'])
+Forecast = namedtuple('Forecast', ['predictions'])
 
 
 def read_config(filename):
@@ -91,7 +90,7 @@ def make_climacell_request(apikey, lat, lon):
     }).json()
 
 
-def normalize_daily_forecast(condition):
+def normalize_condition_icon(condition):
     condition = condition.upper()
     for icon, synonyms in synonym_map.items():
         if icon in condition:
@@ -103,26 +102,31 @@ def normalize_daily_forecast(condition):
     return 'UNKNOWN'
 
 
-def get_condition_icon(condition):
-    return normalize_daily_forecast(
-        condition.get("weather_code", {}).get("value", "UNKNOWN"))
+def get_condition_icon(resp_prediction):
+    return normalize_condition_icon(
+        resp_prediction.get("weather_code", {}).get("value", "UNKNOWN"))
 
 
-def get_moon_icon(condition):
-    return condition.get("moon_phase", {}).get("value", "UNKNOWN").upper()
+def get_moon_icon(resp_prediction):
+    return resp_prediction.get("moon_phase", {}).get("value", "UNKNOWN").upper()
 
 
-def get_temp(condition):
-    return condition.get("feels_like", {}).get("value", 0)
+def get_temp(resp_prediction):
+    return int(resp_prediction.get("feels_like", {}).get("value", 0))
 
+def make_prediction(resp_prediction):
+    return Prediction(condition_icon=get_condition_icon(resp_prediction),
+            moon_icon=get_moon_icon(resp_prediction),
+            temp=get_temp(resp_prediction))
 
 def get_climacell_forecast(apikey, lat, lon):
     resp = make_climacell_request(apikey, lat, lon)
     resp = resp or [{}]
-    condition_icon = get_condition_icon(resp[0])
-    moon_icon = get_moon_icon(resp[0])
-    temp = get_temp(resp[0])
-    return Forecast(conditions=resp, condition_icon=condition_icon, temp=temp, moon_icon=moon_icon)
+    if not isinstance(resp, list) or len(resp) == 0:
+        print("unexpected response {}".format(resp))
+        return None
+    predictions = map(make_prediction, resp)
+    return Forecast(predictions=predictions)
 
 
 def print_forecast(forecast=None):
@@ -133,22 +137,23 @@ def print_forecast(forecast=None):
     if forecast is None:
         print('null forecast')
     else:
-        print('Condition: {}, Temp: {} Moon: {}'.format(
-            forecast.condition_icon, forecast.temp, forecast.moon_icon))
+        for p in forecast.predictions:
+            print(p)
 
 
-def display_current_forecast(forecast=None):
+def display_current_forecast(display, forecast=None):
     """Display forecast as icons on LED 8x8 matrices."""
-    if forecast == None:
+    if forecast == None or len(forecast.predictions) < 1 :
         return
+    prediction = forecast.predictions[0]
 
     i = 0
-    display.scroll_raw64(LED8x8ICONS[forecast.moon_icon], i)
+    display.scroll_raw64(LED8x8ICONS[prediction.moon_icon], i)
 
     i = 1
-    display.scroll_raw64(LED8x8ICONS[forecast.condition_icon], i)
+    display.scroll_raw64(LED8x8ICONS[prediction.condition_icon], i)
 
-    temp = int(forecast.temp)
+    temp = prediction.temp
     digits = []
     while temp > 0:
         new_d = temp % 10
@@ -159,18 +164,18 @@ def display_current_forecast(forecast=None):
         display.scroll_raw64(LED8x8ICONS['{0}'.format(d)], i + offset)
 
 
-def display_8_hr_forecast(forecast=None):
+def display_8_hr_forecast(display, forecast=None):
     """Display forecast as icons on LED 8x8 matrices."""
     if forecast is None:
         return
 
     max_i = 4
-    offset = len(forecast.conditions) // max_i
-    for i, cond_idx in enumerate(range(0, len(forecast), offset)):
+    offset = len(forecast.predictions) // max_i
+    for i, pidx in enumerate(range(0, len(forecast.predictions), offset)):
         if i >= max_i:
             break
-        condition = forecast.conditions[cond_idx]
-        display.scroll_raw64(LED8x8ICONS[condition], i)
+        condition_icon = forecast.predictions[pidx].condition_icon
+        display.scroll_raw64(LED8x8ICONS[condition_icon], i)
 
 
 
@@ -179,27 +184,28 @@ def display_8_hr_forecast(forecast=None):
 # -------------------------------------------------------------------------------
 if __name__ == "__main__":
     apikey, lat, lon = read_config('climacell_cfg.json')
-    reset_display()
+    display = LEDDisplay()
+    reset_display(display)
     forecast = get_climacell_forecast(apikey, lat, lon)
     print_forecast(forecast)
-    last_fetched = datetime.datetime.now()
+    last_fetched = datetime.now()
     i = 0
     while True:
         try:
-            elapsed = datetime.datetime.now() - last_fetched
+            elapsed = datetime.now() - last_fetched
             timeout = 60 * 5 if (forecast is None) else 60 * 60
             if elapsed.total_seconds() >= timeout:
                 print('Fetching new forecast')
-                last_fetched = datetime.datetime.now()
+                last_fetched = datetime.now()
                 forecast = get_climacell_forecast(apikey, lat, lon)
                 print_forecast(forecast)
 
             if i == 0 or forecast is None:
-                display_clock()
+                display_clock(display)
             elif i == 1:
-                display_current_forecast(forecast)
+                display_current_forecast(display, forecast)
             elif i == 2:
-                display_8_hr_forecast(forecast)
+                display_8_hr_forecast(display, forecast)
 
             time.sleep(2)
 
