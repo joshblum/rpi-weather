@@ -88,7 +88,7 @@ location. Once you have this info, create a file called ```climacell_cfg.json```
 with the following contents:
 ```
 {
-    "apikey": "your api",
+    "apikey": "your api key",
     "lat": lat,
     "lon": lon,
 }
