@@ -146,25 +146,6 @@ def normalize_daily_forecast(condition):
     return 'UNKNOWN'
 
 
-def display_cube(display, forecast=None):
-    """Display forecast as icons on LED 8x8 matrices."""
-    if forecast == None:
-        return
-
-    icon = forecast.condition_icon
-    # if we don't know the weather show the average temperature rounded to the
-    # nearest ten.
-    if icon == "UNKNOWN":
-        temp = int(round((forecast.minimum + forecast.maximum) / 2, -1))
-        d = 0
-        if temp < 100:
-            d = temp / 10
-        elif temp >= 100:
-            d = 9  # approximate > 100 to 1 digit
-        icon = '{0}'.format(d)
-    display.scroll_raw64(LED8x8ICONS[icon], 0)
-
-
 def display_forecast(display, forecast=None, show_hi=True):
     """Display forecast as icons on LED 8x8 matrices."""
     if forecast == None:

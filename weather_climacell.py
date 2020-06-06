@@ -144,7 +144,7 @@ def print_forecast(forecast=None):
 
 def display_current_forecast(display, forecast=None):
     """Display forecast as icons on LED 8x8 matrices."""
-    if forecast == None or len(forecast.predictions) < 1 :
+    if forecast is None or len(forecast.predictions) < 1 :
         return
     prediction = forecast.predictions[0]
 
@@ -179,7 +179,6 @@ def display_8_hr_forecast(display, forecast=None):
         display.scroll_raw64(LED8x8ICONS[condition_icon], i)
 
 
-
 # -------------------------------------------------------------------------------
 #  M A I N
 # -------------------------------------------------------------------------------
@@ -193,12 +192,12 @@ if __name__ == "__main__":
     reset_display(display)
     forecast = None
     last_fetched = datetime.now()
+    timeout =  60 * 60 # 1 hour
     i = 0
     while True:
         try:
             elapsed = datetime.now() - last_fetched
-            timeout = 60 * 5 if (forecast is None) else 60 * 60
-            if elapsed.total_seconds() >= timeout:
+            if elapsed.total_seconds() >= timeout or forecast is None:
                 print('Fetching new forecast')
                 last_fetched = datetime.now()
                 forecast = get_climacell_forecast(apikey, lat, lon)
