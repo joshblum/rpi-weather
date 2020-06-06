@@ -354,7 +354,7 @@ def main():
 
         def start(): return game.start()
         thread = Thread(target=start)
-	thread.daemon = True
+        thread.daemon = True
 
         thread.start()
         while game.running:

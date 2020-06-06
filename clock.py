@@ -1,12 +1,12 @@
 #!/usr/bin/env python
-#===============================================================================
+# ===============================================================================
 # clock.py
 #
 # Simple clock demo.
 #
 # 2014-09-12
 # Carter Nelson
-#===============================================================================
+# ===============================================================================
 import time
 
 from led_disp import LEDDisplay
@@ -23,7 +23,12 @@ def time2int(time_struct, format24=True):
     m = time_struct.tm_min
     if not format24:
         h = h if h <= 12 else h - 12
-    return h*100+m
+    return h * 100 + m
+
+def display_clock(display):
+    old_val = time2int(time.localtime())
+    display.disp_number(old_val, scroll=True)
+
 
 def update_display(display, new_val, old_val):
     """Update the display, one digit at a time, where values differ."""
@@ -31,14 +36,15 @@ def update_display(display, new_val, old_val):
         return
     if new_val == old_val:
         return
-    for i in xrange(3,-1,-1):
+    for i in xrange(3, -1, -1):
         new_d = new_val % 10
         display.scroll_raw64(ICONS['{0}'.format(new_d)], i)
         new_val /= 10
 
-#-------------------------------------------------------------------------------
+
+# -------------------------------------------------------------------------------
 #  M A I N
-#-------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------
 if __name__ == '__main__':
     old_val = time2int(time.localtime())
     display = LEDDisplay()

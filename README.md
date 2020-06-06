@@ -12,6 +12,7 @@ to set unique addresses for each. Expected range is 0x70-0x73.
 # Software
 A brief description of the various software components.
 * ```weather.py``` - gets and displays forecast from [NOAA](http://graphical.weather.gov/xml/rest.php) (**US ONLY**)
+* ```weather_climacell.py``` - gets and displays forecast from [ClimaCell](http://climacell.co)
 * ```weather_metoffice.py``` - gets and displays forecast from [metoffice.gov.uk](http://metoffice.gov.uk) (**UK ONLY**)
 * ```weather_forecastio.py``` - gets and displays forecast from [forecast.io](http://forecast.io)
 * ```weather_openweather.py``` - gets and displays forecast from [openweathermap.org](http://openweathermap.org)
@@ -22,6 +23,9 @@ A brief description of the various software components.
 # Dependencies
 *  Adafruit Python Library for LED Backpacks
     * https://github.com/adafruit/Adafruit_Python_LED_Backpack
+* Requests
+    * https://2.python-requests.org/en/master/
+
 # Setup
 * Enable I0C: https://www.raspberrypi-spy.co.uk/2014/11/enabling-the-i2c-interface-on-the-raspberry-pi/
 
@@ -61,9 +65,9 @@ with the following contents:
 API_KEY: your_api_key
 LOCATION_ID: your_location_id
 ```
-replacing the ```your_*``` info as needed. 
+replacing the ```your_*``` info as needed.
 
-# Configure (forecast.io and openweathermap.org)
+# Configure (forecast.io, openweathermap.org)
 You will need an API key to use these services. Each website has instructions
 for how to do this. You will also need the latitude and longitude for your
 location. Once you have this info, create a file called ```weather.cfg```
@@ -77,12 +81,27 @@ LON: your_longitude
 replacing the ```your_*``` info as needed. **NOTE:** west longitudes are negative,
 use decimal values for both.
 
-# Automation
-The easiest way to have the program run on a daily basis is to use ```cron```.
-Use ```crontab -e``` to add the following entry, which will run the program
-every morning at 4AM:
+# Configure (climacell.co)
+You will need an API key to use these services. Each website has instructions
+for how to do this. You will also need the latitude and longitude for your
+location. Once you have this info, create a file called ```climacell_cfg.json```
+with the following contents:
 ```
-0 4 * * * sudo -E PYTHONPATH=$PYTHONPATH python /home/pi/rpi-weather/weather.py
+{
+    "apikey": "your api",
+    "lat": lat,
+    "lon": lon,
+}
+```
+replacing the ```your_*``` info as needed. **NOTE:** west longitudes are negative,
+use decimal values for both.
+
+# Automation
+The easiest way to have the program run on boot is to use ```cron```.
+Use ```crontab -e``` to add the following entry, which will run the program
+on system startup
+```
+@reboot python /home/pi/rpi-weather/weather.py
 ```
 **NOTE:** If you installed the program in a different location, change the path
 accordingly.

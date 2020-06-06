@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#===============================================================================
+# ===============================================================================
 # weather.py
 #
 # Get weather forecast from NOAA and display as 8x8 icons
@@ -10,7 +10,7 @@
 #
 # 2014-09-14
 # Carter Nelson
-#===============================================================================
+# ===============================================================================
 import datetime
 import httplib
 import time
@@ -20,7 +20,7 @@ from collections import namedtuple
 from xml.dom.minidom import parseString
 
 from led_disp import LEDDisplay
-from clock import time2int
+from clock import display_clock
 from led8x8icons import LED8x8ICONS
 
 icons = ['SUNNY', 'RAIN', 'CLOUD', 'SHOWERS', 'SNOW', 'STORM']
@@ -33,17 +33,14 @@ synonym_map = {
     'STORM': [],
 }
 
-ZIPCODE     = 11225
-NUM_DAYS    = 1
-NOAA_URL    = "digital.weather.gov"
-REQ_BASE    = r"/xml/sample_products/browser_interface/ndfdBrowserClientByDay.php?"
+ZIPCODE = 11225
+NUM_DAYS = 1
+NOAA_URL = "digital.weather.gov"
+REQ_BASE = r"/xml/sample_products/browser_interface/ndfdBrowserClientByDay.php?"
 TIME_FORMAT = "12+hourly"
-HEADERS     = {"User-Agent":"Mozilla/5.0"}
-Forecast = namedtuple('Forecast', ['maximum', 'minimum', 'conditions', 'condition_icon'])
-
-def reset_display(display):
-    for matrix in xrange(4):
-        display.set_raw64(LED8x8ICONS['UNKNOWN'],matrix)
+HEADERS = {"User-Agent": "Mozilla/5.0"}
+Forecast = namedtuple(
+    'Forecast', ['maximum', 'minimum', 'conditions', 'condition_icon'])
 
 
 def validate_zip(zip_arg):
@@ -56,6 +53,7 @@ def validate_zip(zip_arg):
         pass
     return ZIPCODE
 
+
 def get_offset():
     """ Returns 0 if local time after 6AM and before 6PM, 1 otherwise."""
     hour = time.localtime().tm_hour
@@ -64,11 +62,12 @@ def get_offset():
     else:
         return 1
 
+
 def make_noaa_request():
     """Make request to NOAA REST server and return data."""
-    REQUEST = REQ_BASE + "zipCodeList={0:05d}&".format(ZIPCODE)+\
-                        "format={0}&".format(TIME_FORMAT)+\
-                        "numDays={0}".format(NUM_DAYS)    
+    REQUEST = REQ_BASE + "zipCodeList={0:05d}&".format(ZIPCODE) +\
+        "format={0}&".format(TIME_FORMAT) +\
+        "numDays={0}".format(NUM_DAYS)
     try:
         conn = httplib.HTTPSConnection(NOAA_URL)
         conn.request("GET", REQUEST, headers=HEADERS)
@@ -79,6 +78,7 @@ def make_noaa_request():
         return None
     else:
         return data
+
 
 def get_noaa_forecast():
     """Return a string of forecast results."""
@@ -113,26 +113,29 @@ def get_noaa_forecast():
 
     condition_icon = 'UNKNOWN'
     if len(conditions) > 0:
-        condition = [e.getAttribute("weather-summary") for e in conditions[offset::2]][0]
+        condition = [e.getAttribute("weather-summary")
+                     for e in conditions[offset::2]][0]
         condition_icon = normalize_daily_forecast(condition)
         if condition_icon == 'UNKNOWN':
-            print 'condition:', condition.encode('ascii','ignore').upper()
+            print 'condition:', condition.encode('ascii', 'ignore').upper()
 
     return Forecast(conditions=conditions, condition_icon=condition_icon, **tempDict)
+
 
 def print_forecast(forecast=None):
     """Print forecast to screen."""
     if forecast is None:
         print 'null forecast'
         return
-    print '-'*20
+    print '-' * 20
     print time.strftime('%Y/%m/%d %H:%M:%S')
     print "ZIPCODE {0}".format(ZIPCODE)
-    print '-'*20
+    print '-' * 20
     print 'Condition: {}, Hi: {}, Lo: {}, Conditions: {}'.format(forecast.condition_icon, forecast.maximum, forecast.minimum, forecast.conditions)
 
+
 def normalize_daily_forecast(condition):
-    condition = condition.encode('ascii','ignore').upper()
+    condition = condition.encode('ascii', 'ignore').upper()
     for icon, synonyms in synonym_map.items():
         if icon in condition:
             return icon
@@ -141,6 +144,7 @@ def normalize_daily_forecast(condition):
                 return icon
     print 'Missing icon for daily forecast', condition
     return 'UNKNOWN'
+
 
 def display_cube(display, forecast=None):
     """Display forecast as icons on LED 8x8 matrices."""
@@ -151,14 +155,15 @@ def display_cube(display, forecast=None):
     # if we don't know the weather show the average temperature rounded to the
     # nearest ten.
     if icon == "UNKNOWN":
-        temp = int(round((forecast.minimum + forecast.maximum)/2, -1))
+        temp = int(round((forecast.minimum + forecast.maximum) / 2, -1))
         d = 0
         if temp < 100:
             d = temp / 10
         elif temp >= 100:
-            d = 9 # approximate > 100 to 1 digit
+            d = 9  # approximate > 100 to 1 digit
         icon = '{0}'.format(d)
     display.scroll_raw64(LED8x8ICONS[icon], 0)
+
 
 def display_forecast(display, forecast=None, show_hi=True):
     """Display forecast as icons on LED 8x8 matrices."""
@@ -167,7 +172,6 @@ def display_forecast(display, forecast=None, show_hi=True):
 
     i = 0
     display.scroll_raw64(LED8x8ICONS[forecast.condition_icon], i)
-
 
     i = 1
     icon = 'UP_ARROW' if show_hi else 'DOWN_ARROW'
@@ -181,7 +185,8 @@ def display_forecast(display, forecast=None, show_hi=True):
         temp /= 10
     offset = 2
     for i, d in enumerate(reversed(digits)):
-        display.scroll_raw64(LED8x8ICONS['{0}'.format(d)], i+offset)
+        display.scroll_raw64(LED8x8ICONS['{0}'.format(d)], i + offset)
+
 
 def display_msg(display, msg, delay):
     for i, char in enumerate(msg):
@@ -191,13 +196,11 @@ def display_msg(display, msg, delay):
             icon = 'ALL_OFF'
         display.scroll_raw64(LED8x8ICONS[icon], idx, delay)
 
-def display_clock(display):
-    old_val = time2int(time.localtime())
-    display.disp_number(old_val, scroll=True)
 
-#-------------------------------------------------------------------------------
+
+# -------------------------------------------------------------------------------
 #  M A I N
-#-------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------
 if __name__ == "__main__":
     if len(sys.argv) > 1:
         ZIPCODE = validate_zip(sys.argv[1])
@@ -212,7 +215,9 @@ if __name__ == "__main__":
     while True:
         try:
             elapsed = datetime.datetime.now() - last_fetched
-            timeout = 60*5 if (forecast is None or not len(forecast.conditions)) else 60*60
+            timeout = 60 * \
+                5 if (forecast is None or not len(
+                    forecast.conditions)) else 60 * 60
             if elapsed.total_seconds() >= timeout:
                 print 'Fetching new forecast'
                 last_fetched = datetime.datetime.now()

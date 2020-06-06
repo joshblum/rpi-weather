@@ -1,0 +1,209 @@
+#!/usr/bin/env python
+# ===============================================================================
+# weather_climacell.py
+#
+# Get weather forecast from ClimaCell and display as 8x8 icons
+#   * https://developer.climacell.co/v3/reference#get-hourly
+#   * Setup an API config according to the readme
+# ===============================================================================
+import requests
+import datetime
+import time
+import random
+import sys
+import json
+from collections import namedtuple
+from datetime import datetime, tzinfo, timedelta
+
+from led_disp import LEDDisplay, reset_display
+from clock import display_clock
+from led8x8icons import LED8x8ICONS
+
+
+url = "https://api.climacell.co/v3/weather/forecast/hourly"
+icons = ['SUNNY', 'RAIN', 'CLOUD', 'SHOWERS', 'SNOW', 'STORM']
+synonym_map = {
+    'SUNNY': [
+        'MOSTLY_CLEAR',
+        'CLEAR',
+    ],
+    'RAIN': [
+        'RAIN',
+        'RAIN_LIGHT',
+    ],
+    'CLOUD': [
+        'CLOUDY',
+        'MOSTLY_CLOUDY',
+        'PARTLY_CLOUDY',
+    ],
+    'SHOWERS': [
+        'DRIZZLE',
+        'FOG_LIGHT',
+        'FOG',
+    ],
+    'SNOW': [
+        'FREEZING_RAIN_HEAVY',
+        'FREEZING_RAIN',
+        'FREEZING_RAIN_LIGHT',
+        'FREEZING_DRIZZLE',
+        'ICE_PELLETS_HEAVY',
+        'ICE_PELLETS',
+        'ICE_PELLETS_LIGHT',
+        'SNOW_HEAVY',
+        'SNOW',
+        'SNOW_LIGHT',
+        'FLURRIES',
+    ],
+    'STORM': [
+        'RAIN_HEAVY',
+        'TSTORM',
+    ],
+}
+
+Forecast = namedtuple(
+    'Forecast', ['conditions', 'temp', 'condition_icon', 'moon_icon'])
+# display = LEDDisplay()
+
+
+def read_config(filename):
+    with open(filename) as f:
+        data = json.load(f)
+        return data['apikey'], data['lat'], data['lon']
+
+class simple_utc(tzinfo):
+    def tzname(self, **kwargs):
+        return "UTC"
+
+    def utcoffset(self, dt):
+        return timedelta(0)
+
+
+def make_climacell_request(apikey, lat, lon):
+    now = datetime.utcnow().replace(tzinfo=simple_utc())
+    return requests.request("GET", url, params={
+        'lat': lat,
+        'lon': lon,
+        'apikey': apikey,
+        'unit_system': 'us',
+        'start_time': now.isoformat(),
+        'end_time': (now + timedelta(hours=8)).isoformat(),
+        'fields': ['feels_like', 'weather_code', 'moon_phase'],
+    }).json()
+
+
+def normalize_daily_forecast(condition):
+    condition = condition.upper()
+    for icon, synonyms in synonym_map.items():
+        if icon in condition:
+            return icon
+        for synonym in synonyms:
+            if synonym in condition:
+                return icon
+    print('Missing icon for daily forecast', condition)
+    return 'UNKNOWN'
+
+
+def get_condition_icon(condition):
+    return normalize_daily_forecast(
+        condition.get("weather_code", {}).get("value", "UNKNOWN"))
+
+
+def get_moon_icon(condition):
+    return condition.get("moon_phase", {}).get("value", "UNKNOWN").upper()
+
+
+def get_temp(condition):
+    return condition.get("feels_like", {}).get("value", 0)
+
+
+def get_climacell_forecast(apikey, lat, lon):
+    resp = make_climacell_request(apikey, lat, lon)
+    resp = resp or [{}]
+    condition_icon = get_condition_icon(resp[0])
+    moon_icon = get_moon_icon(resp[0])
+    temp = get_temp(resp[0])
+    return Forecast(conditions=resp, condition_icon=condition_icon, temp=temp, moon_icon=moon_icon)
+
+
+def print_forecast(forecast=None):
+    """Print forecast to screen."""
+    print('-' * 20)
+    print(time.strftime('%Y/%m/%d %H:%M:%S'))
+    print('-' * 20)
+    if forecast is None:
+        print('null forecast')
+    else:
+        print('Condition: {}, Temp: {} Moon: {}'.format(
+            forecast.condition_icon, forecast.temp, forecast.moon_icon))
+
+
+def display_current_forecast(forecast=None):
+    """Display forecast as icons on LED 8x8 matrices."""
+    if forecast == None:
+        return
+
+    i = 0
+    display.scroll_raw64(LED8x8ICONS[forecast.moon_icon], i)
+
+    i = 1
+    display.scroll_raw64(LED8x8ICONS[forecast.condition_icon], i)
+
+    temp = int(forecast.temp)
+    digits = []
+    while temp > 0:
+        new_d = temp % 10
+        digits.append(new_d)
+        temp /= 10
+    offset = 2
+    for i, d in enumerate(reversed(digits)):
+        display.scroll_raw64(LED8x8ICONS['{0}'.format(d)], i + offset)
+
+
+def display_8_hr_forecast(forecast=None):
+    """Display forecast as icons on LED 8x8 matrices."""
+    if forecast is None:
+        return
+
+    max_i = 4
+    offset = len(forecast.conditions) // max_i
+    for i, cond_idx in enumerate(range(0, len(forecast), offset)):
+        if i >= max_i:
+            break
+        condition = forecast.conditions[cond_idx]
+        display.scroll_raw64(LED8x8ICONS[condition], i)
+
+
+
+# -------------------------------------------------------------------------------
+#  M A I N
+# -------------------------------------------------------------------------------
+if __name__ == "__main__":
+    apikey, lat, lon = read_config('climacell_cfg.json')
+    reset_display()
+    forecast = get_climacell_forecast(apikey, lat, lon)
+    print_forecast(forecast)
+    last_fetched = datetime.datetime.now()
+    i = 0
+    while True:
+        try:
+            elapsed = datetime.datetime.now() - last_fetched
+            timeout = 60 * 5 if (forecast is None) else 60 * 60
+            if elapsed.total_seconds() >= timeout:
+                print('Fetching new forecast')
+                last_fetched = datetime.datetime.now()
+                forecast = get_climacell_forecast(apikey, lat, lon)
+                print_forecast(forecast)
+
+            if i == 0 or forecast is None:
+                display_clock()
+            elif i == 1:
+                display_current_forecast(forecast)
+            elif i == 2:
+                display_8_hr_forecast(forecast)
+
+            time.sleep(2)
+
+            i += 1
+            i %= 3
+        except Exception as e:
+            print('unhandled exception', e)

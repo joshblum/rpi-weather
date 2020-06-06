@@ -85,8 +85,9 @@ class Ball(Piece):
         super(Ball, self).__init__(width, height, initial_point)
 
     def reset(self):
-    	self.initial_point.vy = random.randrange(-10, 10, 1) / 10.0
-	super(Ball, self).reset()
+        self.initial_point.vy = random.randrange(-10, 10, 1) / 10.0
+        super(Ball, self).reset()
+
 
 class Player(Piece):
 
@@ -184,7 +185,7 @@ class Board(object):
         for p in self.pieces():
             p.reset()
         self.array = self._init_array()
-        self.num_resets+=1
+        self.num_resets += 1
 
     def exceeded_max_resets(self):
         return self.num_resets >= self.max_resets
@@ -260,27 +261,25 @@ class TermPong(Pong):
         self.screen.refresh()
 
 
-class PiPong(Pong):#
+class PiPong(Pong):
 
     def __init__(self, board, screen):
         super(PiPong, self).__init__(board)
-	self.display = LEDDisplay()
-	self.display.clear_display()	
+        self.display = LEDDisplay()
+        self.display.clear_display()
 
     def render(self):
         for y, row in enumerate(self.board.array):
             for x, value in enumerate(row):
-		matrix = x / 8
-		self.display.set_pixel(x % 8, y % 8,
-			 matrix=matrix, value=value, write=False)
-	for matrix in range(len(self.display.matrix)):
-	    self.display.write_display(matrix)
+                matrix = x / 8
+                self.display.set_pixel(x % 8, y % 8,
+                                       matrix=matrix, value=value, write=False)
+        for matrix in range(len(self.display.matrix)):
+            self.display.write_display(matrix)
 
     def render_end_game(self):
-	for matrix in range(len(self.display.matrix)):
-		self.display.set_raw64(LED8x8ICONS['UNKNOWN'], matrix)
-
-    
+        for matrix in range(len(self.display.matrix)):
+            self.display.set_raw64(LED8x8ICONS['UNKNOWN'], matrix)
 
 
 def main():
@@ -307,12 +306,12 @@ def main():
     window = curses.newwin(DEFAULT_BOARD_HEIGHT + 1,
                            DEFAULT_BOARD_WIDTH + 1, 0, 0)
     try:
-	# pong = TermPong(board, window)
-	pong = PiPong(board, window)
+        # pong = TermPong(board, window)
+        pong = PiPong(board, window)
 
-	def start(): return pong.start_game()
-	thread = Thread(target=start)
-	thread.daemon = True
+        def start(): return pong.start_game()
+        thread = Thread(target=start)
+        thread.daemon = True
 
         thread.start()
         while pong.running:
