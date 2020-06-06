@@ -191,6 +191,7 @@ if __name__ == "__main__":
     apikey, lat, lon = read_config(filename)
     display = LEDDisplay()
     reset_display(display)
+    forecast = None
     last_fetched = datetime.now()
     i = 0
     while True:
