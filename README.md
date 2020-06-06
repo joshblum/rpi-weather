@@ -90,7 +90,7 @@ with the following contents:
 {
     "apikey": "your api key",
     "lat": lat,
-    "lon": lon,
+    "lon": lon
 }
 ```
 replacing the ```your_*``` info as needed. **NOTE:** west longitudes are negative,
