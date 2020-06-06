@@ -34,7 +34,7 @@ if __name__ == "__main__":
     reset_display(display)
     forecast = None
     last_fetched = datetime.now()
-    timeout =  60 * 60 # 1 hour
+    timeout = 60 * 60  # 1 hour
     i = 0
     while True:
         try:

@@ -69,6 +69,7 @@ def read_config(filename):
         data = json.load(f)
         return data['apikey'], data['lat'], data['lon']
 
+
 class simple_utc(tzinfo):
     def tzname(self, **kwargs):
         return "UTC"
@@ -115,10 +116,12 @@ def get_moon_icon(resp_prediction):
 def get_temp(resp_prediction):
     return int(resp_prediction.get("feels_like", {}).get("value", 0))
 
+
 def make_prediction(resp_prediction):
     return Prediction(condition_icon=get_condition_icon(resp_prediction),
-            moon_icon=get_moon_icon(resp_prediction),
-            temp=get_temp(resp_prediction))
+                      moon_icon=get_moon_icon(resp_prediction),
+                      temp=get_temp(resp_prediction))
+
 
 def get_climacell_forecast(apikey, lat, lon):
     resp = make_climacell_request(apikey, lat, lon)
@@ -144,7 +147,7 @@ def print_forecast(forecast=None):
 
 def display_current_forecast(display, forecast=None):
     """Display forecast as icons on LED 8x8 matrices."""
-    if forecast is None or len(forecast.predictions) < 1 :
+    if forecast is None or len(forecast.predictions) < 1:
         return
     prediction = forecast.predictions[0]
 
@@ -192,7 +195,7 @@ if __name__ == "__main__":
     reset_display(display)
     forecast = None
     last_fetched = datetime.now()
-    timeout =  60 * 60 # 1 hour
+    timeout = 60 * 60  # 1 hour
     i = 0
     while True:
         try:
