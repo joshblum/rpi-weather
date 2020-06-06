@@ -2,6 +2,7 @@
 # led8x8icons.py
 #
 # Dictionary of LED 8x8 matrix icons as 64 bit values.
+# Generated from https://xantorohara.github.io/led-matrix-editor/
 #
 # Code snippet for computing value from bitmap:
 #
