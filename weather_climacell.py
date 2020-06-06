@@ -183,7 +183,10 @@ def display_8_hr_forecast(display, forecast=None):
 #  M A I N
 # -------------------------------------------------------------------------------
 if __name__ == "__main__":
-    apikey, lat, lon = read_config('climacell_cfg.json')
+    if len(sys.argv) > 0:
+        filename = sys.argv[0]
+    filename = 'climacell_cfg.json'
+    apikey, lat, lon = read_config(filename)
     display = LEDDisplay()
     reset_display(display)
     forecast = get_climacell_forecast(apikey, lat, lon)
