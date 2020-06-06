@@ -79,7 +79,7 @@ class simple_utc(tzinfo):
 
 def make_climacell_request(apikey, lat, lon):
     now = datetime.utcnow().replace(tzinfo=simple_utc())
-    return requests.request("GET", url, params={
+    r = requests.request("GET", url, params={
         'lat': lat,
         'lon': lon,
         'apikey': apikey,
@@ -87,7 +87,8 @@ def make_climacell_request(apikey, lat, lon):
         'start_time': now.isoformat(),
         'end_time': (now + timedelta(hours=8)).isoformat(),
         'fields': ['feels_like', 'weather_code', 'moon_phase'],
-    }).json()
+    })
+    return r.json()
 
 
 def normalize_condition_icon(condition):
@@ -190,8 +191,6 @@ if __name__ == "__main__":
     apikey, lat, lon = read_config(filename)
     display = LEDDisplay()
     reset_display(display)
-    forecast = get_climacell_forecast(apikey, lat, lon)
-    print_forecast(forecast)
     last_fetched = datetime.now()
     i = 0
     while True:
