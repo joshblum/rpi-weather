@@ -148,7 +148,7 @@ def normalize_daily_forecast(condition):
 
 def display_forecast(display, forecast=None, show_hi=True):
     """Display forecast as icons on LED 8x8 matrices."""
-    if forecast == None:
+    if forecast is None:
         return
 
     i = 0

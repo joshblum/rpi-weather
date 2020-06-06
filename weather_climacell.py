@@ -144,6 +144,30 @@ def print_forecast(forecast=None):
         for p in forecast.predictions:
             print(p)
 
+def display_hi_low(display, forecast=None, show_hi=True):
+    """Display forecast as icons on LED 8x8 matrices."""
+    if forecast is None or len(forecast) < 1:
+        return
+
+    i = 0
+    display.scroll_raw64(LED8x8ICONS[forecast.predictions[0].condition_icon], i)
+
+    i = 1
+    icon = 'UP_ARROW' if show_hi else 'DOWN_ARROW'
+    display.scroll_raw64(LED8x8ICONS[icon], i)
+
+
+    fn = max if show_hi else min
+    temp = fn(forecast.predictions, key=lambda x: x.temp).temp
+    digits = []
+    while temp > 0:
+        new_d = temp % 10
+        digits.append(new_d)
+        temp /= 10
+    offset = 2
+    for i, d in enumerate(reversed(digits)):
+        display.scroll_raw64(LED8x8ICONS['{0}'.format(d)], i + offset)
+
 
 def display_current_forecast(display, forecast=None):
     """Display forecast as icons on LED 8x8 matrices."""
@@ -211,11 +235,19 @@ if __name__ == "__main__":
             elif i == 1:
                 display_current_forecast(display, forecast)
             elif i == 2:
+                display_hi_low(display, forecast)
+            elif i == 3:
+                display_hi_low(display, forecast, show_hi=False)
+            elif i == 4:
                 display_8_hr_forecast(display, forecast)
 
             time.sleep(2)
 
             i += 1
-            i %= 3
+            i %= 5
         except Exception as e:
             print('unhandled exception', e)
+            time.sleep(2)
+
+            i += 1
+            i %= 5
