@@ -63,7 +63,6 @@ synonym_map = {
 Prediction = namedtuple('Prediction', ['temp', 'condition_icon', 'moon_icon'])
 Forecast = namedtuple('Forecast', ['predictions'])
 
-
 def read_config(filename):
     with open(filename) as f:
         data = json.load(f)
@@ -214,41 +213,43 @@ if __name__ == "__main__":
         filename = sys.argv[1]
     else:
         filename = 'climacell_cfg.json'
+
+    programs = {
+        'clock': lambda d,f : display_clock(d),
+        'hi_forecast': lambda d,f : display_hi_low(d,f, show_hi=false),
+        'low_forecast': display_hi_low,
+        'current_forecast': display_current_forecast,
+    }
+    program = []
+    for arg in sys.argv[2:]:
+        if arg in programs:
+            program.append(programs[arg])
+        else:
+            raise Exception("expected one of {}, found {}".format(programs.keys(), arg))
+
+    if not len(program):
+        program = [display_current_forecast]
+
     apikey, lat, lon = read_config(filename)
     display = LEDDisplay()
     reset_display(display)
     forecast = None
     last_fetched = datetime.now()
     timeout = 60 * 60  # 1 hour
-    i = 0
     while True:
-        try:
-            elapsed = datetime.now() - last_fetched
-            if elapsed.total_seconds() >= timeout or forecast is None:
-                print('Fetching new forecast')
-                last_fetched = datetime.now()
-                forecast = get_climacell_forecast(apikey, lat, lon)
-                print_forecast(forecast)
+        for step in program:
+            try:
 
-            if i == 0 or forecast is None:
-                display_clock(display)
-            elif i == 1:
-                display_current_forecast(display, forecast)
-            elif i == 2:
-                display_hi_low(display, forecast)
-            elif i == 3:
-                display_hi_low(display, forecast, show_hi=False)
-            elif i == 4:
-                display_8_hr_forecast(display, forecast)
+                elapsed = datetime.now() - last_fetched
+                if elapsed.total_seconds() >= timeout or forecast is None:
+                    print('Fetching new forecast')
+                    last_fetched = datetime.now()
+                    forecast = get_climacell_forecast(apikey, lat, lon)
+                    print_forecast(forecast)
 
-            time.sleep(2)
-
-            i += 1
-            i %= 5
-            display.clear_display()
-        except Exception as e:
-            print('unhandled exception', e)
-            time.sleep(2)
-
-            i += 1
-            i %= 5
+                step(display, forecast)
+                time.sleep(2)
+                display.clear_display()
+            except Exception as e:
+                print('unhandled exception', e)
+                time.sleep(2)
