@@ -63,6 +63,7 @@ synonym_map = {
 Prediction = namedtuple('Prediction', ['temp', 'condition_icon', 'moon_icon'])
 Forecast = namedtuple('Forecast', ['predictions'])
 
+
 def read_config(filename):
     with open(filename) as f:
         data = json.load(f)
@@ -143,18 +144,19 @@ def print_forecast(forecast=None):
         for p in forecast.predictions:
             print(p)
 
+
 def display_hi_low(display, forecast=None, show_hi=True):
     """Display forecast as icons on LED 8x8 matrices."""
     if forecast is None or len(forecast) < 1:
         return
 
     i = 0
-    display.scroll_raw64(LED8x8ICONS[forecast.predictions[0].condition_icon], i)
+    display.scroll_raw64(
+        LED8x8ICONS[forecast.predictions[0].condition_icon], i)
 
     i = 1
     icon = 'UP_ARROW' if show_hi else 'DOWN_ARROW'
     display.scroll_raw64(LED8x8ICONS[icon], i)
-
 
     fn = max if show_hi else min
     temp = fn(forecast.predictions, key=lambda x: x.temp).temp
@@ -215,17 +217,19 @@ if __name__ == "__main__":
         filename = 'climacell_cfg.json'
 
     programs = {
-        'clock': lambda d,f : display_clock(d),
-        'hi_forecast': lambda d,f : display_hi_low(d,f, show_hi=false),
+        'clock': lambda d, f: display_clock(d),
+        'hi_forecast': lambda d, f: display_hi_low(d, f, show_hi=False),
         'low_forecast': display_hi_low,
         'current_forecast': display_current_forecast,
+        '8_hr_forecast': display_8_hr_forecast,
     }
     program = []
     for arg in sys.argv[2:]:
         if arg in programs:
             program.append(programs[arg])
         else:
-            raise Exception("expected one of {}, found {}".format(programs.keys(), arg))
+            raise Exception(
+                "expected one of {}, found {}".format(programs.keys(), arg))
 
     if not len(program):
         program = [display_current_forecast]
