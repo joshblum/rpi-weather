@@ -205,6 +205,7 @@ class Pong(object):
 
     def __init__(self, board):
         self.board = board
+        self.running = False
 
     def start_game(self):
         self.running = True

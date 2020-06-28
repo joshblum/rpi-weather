@@ -254,6 +254,7 @@ class Game(object):
     def __init__(self, board):
         self.board = board
         self.step_speed = 1
+        self.running = False
 
     def start(self):
         self.running = True
