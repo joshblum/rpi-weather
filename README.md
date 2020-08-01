@@ -109,8 +109,8 @@ The easiest way to have the program run on boot is to use ```cron```.
 Use ```crontab -e``` to add the following entry, which will run the program
 on system startup
 ```
-@daily cd ~/rpi-weather && git pull
-@reboot python /home/pi/rpi-weather/weather_climacell.py climacell_cfg.json clock current_forecast
+@daily cd /home/pi/rpi-weather && git pull
+@reboot python /home/pi/rpi-weather/weather_climacell.py /home/pi/rpi-weather/climacell_cfg.json clock current_forecast
 ```
 **NOTE:** If you installed the program in a different location, change the path
 accordingly.
