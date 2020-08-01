@@ -20,6 +20,13 @@ A brief description of the various software components.
 * ```led8x8icons.py``` - contains a dictionary of icons
 * ```clock.py``` - displays the time, for use as a clock
 
+# Install script
+To setup and install the required dependencies you can run:
+```
+curl -fsSLO https://raw.githubusercontent.com/joshblum/dotfiles/master/bootstrap-install
+bash bootstrap-install
+```
+
 # Dependencies
 *  Adafruit Python Library for LED Backpacks
     * https://github.com/adafruit/Adafruit_Python_LED_Backpack
@@ -28,6 +35,7 @@ A brief description of the various software components.
 
 # Setup
 * Enable I0C: https://www.raspberrypi-spy.co.uk/2014/11/enabling-the-i2c-interface-on-the-raspberry-pi/
+
 
 # Install
 Simply clone this repo and run:
