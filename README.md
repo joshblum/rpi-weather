@@ -32,7 +32,7 @@ A brief description of the various software components.
 # Install
 Simply clone this repo and run:
 ```
-$ git clone https://github.com/caternuson/rpi-weather.git
+$ git clone https://github.com/joshblum/rpi-weather.git
 $ cd rpi-weather
 $ sudo python weather.py
 ```
