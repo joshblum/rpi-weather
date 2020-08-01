@@ -20,11 +20,12 @@ def reset_display(display):
 class LEDDisplay():
     """Class for interfacing to Raspberry Pi with four Adafruit 8x8 LEDs attached."""
 
-    def __init__(self, size=4):
+    def __init__(self, size=4, brightness=1):
         self.matrix = []
         for i in range(size):
             self.matrix.append(Matrix8x8.Matrix8x8(address=0x70 + i, busnum=1))
         for m in self.matrix:
+            m.set_brightness(brightness)
             m.begin()
 
     def is_valid_matrix(self, matrix):
