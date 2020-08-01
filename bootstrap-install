@@ -11,6 +11,6 @@ git clone https://github.com/adafruit/Adafruit_Python_LED_Backpack.git
 cd Adafruit_Python_LED_Backpack && sudo python setup.py install
 
 git clone https://github.com/joshblum/rpi-weather.git
-echo "dependencies downloaded, please fill out climacell_cfg.json to run"
+echo "dependencies downloaded, please fill out climacell_cfg_template.json to run"
 
 cd - && rm -- "$0"

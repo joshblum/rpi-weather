@@ -23,7 +23,7 @@ A brief description of the various software components.
 # Install script
 To setup and install the required dependencies you can run:
 ```
-curl -fsSLO https://raw.githubusercontent.com/joshblum/dotfiles/master/bootstrap-install
+curl -fsSLO https://raw.githubusercontent.com/joshblum/rpi-weather/master/bootstrap-install
 bash bootstrap-install
 ```
 
@@ -109,7 +109,8 @@ The easiest way to have the program run on boot is to use ```cron```.
 Use ```crontab -e``` to add the following entry, which will run the program
 on system startup
 ```
-@reboot python /home/pi/rpi-weather/weather.py
+@daily cd ~/rpi-weather && git pull
+@reboot python /home/pi/rpi-weather/weather_climacell.py climacell_cfg.json clock current_forecast
 ```
 **NOTE:** If you installed the program in a different location, change the path
 accordingly.
