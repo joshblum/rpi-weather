@@ -27,6 +27,9 @@ curl -fsSLO https://raw.githubusercontent.com/joshblum/rpi-weather/master/bootst
 bash bootstrap-install
 ```
 
+Configure the pi for a network through the CLI:
+https://www.raspberrypi.org/documentation/configuration/wireless/wireless-cli.md
+
 # Dependencies
 *  Adafruit Python Library for LED Backpacks
     * https://github.com/adafruit/Adafruit_Python_LED_Backpack
