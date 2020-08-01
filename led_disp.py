@@ -25,8 +25,8 @@ class LEDDisplay():
         for i in range(size):
             self.matrix.append(Matrix8x8.Matrix8x8(address=0x70 + i, busnum=1))
         for m in self.matrix:
-            m.set_brightness(brightness)
             m.begin()
+            m.set_brightness(brightness)
 
     def is_valid_matrix(self, matrix):
         """Returns True if matrix number is valid, otherwise False."""
