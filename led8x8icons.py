@@ -68,7 +68,7 @@ LED8x8ICONS = {
 'WAXING_GIBBOUS'                    : 0x00307c7c7c7c3000 ,
 'FULL'                              : 0x003c7e7e7e7e3c00 ,
 'WANING_GIBBOUS'                    : 0x000c3e3e3e3e0c00 ,
-'THIRD_QUARTER'                     : 0x000c0e1e1e0e0c00 ,
+'LAST_QUARTER'                      : 0x000c0e1e1e0e0c00 ,
 'WANING_CRESCENT'                   : 0x000c060606060c00 ,
 #---------------------------------------------------------
 # weather

@@ -25,8 +25,8 @@ def time2int(time_struct, format24=True):
         h = h if h <= 12 else h - 12
     return h * 100 + m
 
-def display_clock(display):
-    old_val = time2int(time.localtime())
+def display_clock(display, format24=True):
+    old_val = time2int(time.localtime(), format24=format24)
     display.disp_number(old_val, scroll=True)
 
 

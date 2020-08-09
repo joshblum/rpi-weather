@@ -218,6 +218,8 @@ if __name__ == "__main__":
 
     programs = {
         'clock': lambda d, f: display_clock(d),
+        'clock_12': lambda d, f: display_clock(d, format24=False),
+        'clock_24': lambda d, f: display_clock(d, format24=True),
         'hi_forecast': lambda d, f: display_hi_low(d, f, show_hi=False),
         'low_forecast': display_hi_low,
         'current_forecast': display_current_forecast,
