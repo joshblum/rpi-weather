@@ -13,8 +13,8 @@ from led8x8icons import LED8x8ICONS
 
 
 def reset_display(display):
-    for matrix in xrange(4):
-        display.set_raw64(LED8x8ICONS['SMILE'], matrix)
+    for matrix, icon in enumerate("BLUM"):
+        display.set_raw64(LED8x8ICONS[icon], matrix)
 
 
 class LEDDisplay():
