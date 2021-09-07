@@ -7,6 +7,7 @@
 #   * Setup an API config according to the readme
 # ===============================================================================
 import requests
+import traceback
 import datetime
 import time
 import random
@@ -20,7 +21,7 @@ from clock import display_clock
 from led8x8icons import LED8x8ICONS
 
 
-url = "https://api.climacell.co/v3/weather/forecast/hourly"
+url = "https://api.tomorrow.io/v4/timelines"
 icons = ['SUNNY', 'RAIN', 'CLOUD', 'SHOWERS', 'SNOW', 'STORM']
 synonym_map = {
     'SUNNY': [
@@ -60,6 +61,48 @@ synonym_map = {
     ],
 }
 
+# https://docs.tomorrow.io/reference/data-layers-overview
+moon_phase_map = {
+  0: "NEW",
+  1: "WAXING_CRESCENT",
+  2: "FIRST_QUARTER",
+  3: "WAXING_GIBBOUS",
+  4: "FULL",
+  5: "WANING_GIBBOUS",
+  6: "LAST_QUARTER",
+  7: "WANING_CRESCENT"
+}
+
+weather_code_map = {
+  0: "UNKNOWN",
+  1000: "SUNNY",
+  1001: "CLOUD",
+  1100: "MOSTLY_CLEAR",
+  1101: "PARTLY_CLOUDY",
+  1102: "MOSTLY_CLOUDY",
+  2000: "FOG",
+  2100: "FOG_LIGHT",
+  3000: "SUNNY", # light wind
+  3001: "SUNNY", # wind
+  3002: "SUNNY", # strong wind
+  4000: "DRIZZLE",
+  4001: "RAIN",
+  4200: "RAIN_LIGHT",
+  4201: "RAIN_HEAVY",
+  5000: "SNOW",
+  5001: "FLURRIES",
+  5100: "SNOW_LIGHT",
+  5101: "SNOW_HEAVY",
+  6000: "FREEZING_DRIZZLE",
+  6001: "FREEZING_RAIN",
+  6200: "FREEZING_RAIN_LIGHT",
+  6201: "FREEZEING_RAIN_HEAVY",
+  7000: "ICE_PELLETS",
+  7101: "ICE_PELLETS_HEAVY",
+  7102: "ICE_PELLETS_LIGHT",
+  8000: "TSTORM"
+}
+
 Prediction = namedtuple('Prediction', ['temp', 'condition_icon', 'moon_icon'])
 Forecast = namedtuple('Forecast', ['predictions'])
 
@@ -81,13 +124,15 @@ class simple_utc(tzinfo):
 def make_climacell_request(apikey, lat, lon):
     now = datetime.utcnow().replace(tzinfo=simple_utc())
     r = requests.request("GET", url, params={
-        'lat': lat,
-        'lon': lon,
+        'location': "{},{}".format(lat, lon),
         'apikey': apikey,
-        'unit_system': 'us',
-        'start_time': now.isoformat(),
-        'end_time': (now + timedelta(hours=8)).isoformat(),
-        'fields': ['feels_like', 'weather_code', 'moon_phase'],
+        'units': 'imperial',
+        'timesteps': '1h',
+        'startTime': now.isoformat(),
+        'endTime': (now + timedelta(hours=24)).isoformat(),
+        # include but later ignore 1d to allow moonPhase -_-
+        'timesteps': ['1h', '1d'],
+        'fields': ['temperatureApparent', 'weatherCode', 'moonPhase'],
     })
     return r.json()
 
@@ -106,18 +151,19 @@ def normalize_condition_icon(condition):
 
 def get_condition_icon(resp_prediction):
     return normalize_condition_icon(
-        resp_prediction.get("weather_code", {}).get("value", "UNKNOWN"))
+       weather_code_map.get(resp_prediction.get("weatherCode", 0), 'UNKNOWN'))
 
 
 def get_moon_icon(resp_prediction):
-    return resp_prediction.get("moon_phase", {}).get("value", "UNKNOWN").upper()
+    return moon_phase_map.get(resp_prediction.get("moonPhase", 0), "UNKNOWN").upper()
 
 
 def get_temp(resp_prediction):
-    return int(resp_prediction.get("feels_like", {}).get("value", 0))
+    return int(resp_prediction.get("temperatureApparent", 0))
 
 
 def make_prediction(resp_prediction):
+    resp_prediction = resp_prediction.get('values')
     return Prediction(condition_icon=get_condition_icon(resp_prediction),
                       moon_icon=get_moon_icon(resp_prediction),
                       temp=get_temp(resp_prediction))
@@ -125,12 +171,14 @@ def make_prediction(resp_prediction):
 
 def get_climacell_forecast(apikey, lat, lon):
     resp = make_climacell_request(apikey, lat, lon)
-    resp = resp or [{}]
+    resp = resp.get('data', {}).get('timelines', [])
     if not isinstance(resp, list) or len(resp) == 0:
         print("unexpected response {}".format(resp))
         return None
-    predictions = map(make_prediction, resp)
-    return Forecast(predictions=predictions)
+    intervals = resp[0].get('intervals', [])
+    predictions = list(map(make_prediction, intervals))
+    # restrict this to just the next 8 hours
+    return Forecast(predictions=predictions[:8])
 
 
 def print_forecast(forecast=None):
@@ -164,7 +212,7 @@ def display_hi_low(display, forecast=None, show_hi=True):
     while temp > 0:
         new_d = temp % 10
         digits.append(new_d)
-        temp /= 10
+        temp //= 10
     offset = 2
     for i, d in enumerate(reversed(digits)):
         display.scroll_raw64(LED8x8ICONS['{0}'.format(d)], i + offset)
@@ -187,7 +235,7 @@ def display_current_forecast(display, forecast=None):
     while temp > 0:
         new_d = temp % 10
         digits.append(new_d)
-        temp /= 10
+        temp //= 10
     offset = 2
     for i, d in enumerate(reversed(digits)):
         display.scroll_raw64(LED8x8ICONS['{0}'.format(d)], i + offset)
@@ -256,6 +304,6 @@ if __name__ == "__main__":
                 step(display, forecast)
                 time.sleep(2)
                 display.clear_display()
-            except Exception as e:
-                print('unhandled exception', e)
+            except:
+                traceback.print_exc()
                 time.sleep(2)

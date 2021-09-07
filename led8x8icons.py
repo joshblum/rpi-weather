@@ -28,9 +28,9 @@
 #
 #        def set_raw64(value):
 #            led8x8matrix.clear()
-#            for y in xrange(8):
+#            for y in range(8):
 #                row_byte = value>>(8*y)
-#                for x in xrange(8):
+#                for x in range(8):
 #                    pixel_bit = row_byte>>x&1
 #                    led8x8matrix.set_pixel(x,y,pixel_bit)
 #            led8x8mmatrix.write_display()

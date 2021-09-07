@@ -42,7 +42,7 @@ ICON_MAP = {
 
 def giveup():
     """Action to take if anything bad happens."""
-    for matrix in xrange(4):
+    for matrix in range(4):
         display.set_raw64(LED8x8ICONS['UNKNOWN'], matrix)
     print "Error occured."
     sys.exit(1)
@@ -103,7 +103,7 @@ def display_forecast(forecast=None):
     """Display forecast as icons on LED 8x8 matrices."""
     if forecast == None:
         return
-    for matrix in xrange(4):
+    for matrix in range(4):
         try:
             icon = ICON_MAP[forecast[matrix]]
             display.set_raw64(LED8x8ICONS[icon], matrix)

@@ -30,7 +30,7 @@ class LEDDisplay():
 
     def is_valid_matrix(self, matrix):
         """Returns True if matrix number is valid, otherwise False."""
-        return matrix in xrange(len(self.matrix))
+        return matrix in range(len(self.matrix))
 
     def clear_display(self, matrix=None):
         """Clear specified matrix. If none specified, clear all."""
@@ -61,8 +61,8 @@ class LEDDisplay():
         """Set specified matrix to provided bitmap."""
         if not self.is_valid_matrix(matrix):
             return
-        for x in xrange(8):
-            for y in xrange(8):
+        for x in range(8):
+            for y in range(8):
                 self.matrix[matrix].set_pixel(x, y, bitmap[y][x])
         self.write_display(matrix)
 
@@ -71,9 +71,9 @@ class LEDDisplay():
         if not self.is_valid_matrix(matrix):
             return
         self.matrix[matrix].clear()
-        for y in xrange(8):
+        for y in range(8):
             row_byte = value >> (8 * y)
-            for x in xrange(8):
+            for x in range(8):
                 pixel_bit = row_byte >> x & 0x01
                 self.matrix[matrix].set_pixel(x, y, pixel_bit)
         self.write_display(matrix)
@@ -82,8 +82,8 @@ class LEDDisplay():
         """Scroll out the current bitmap with the supplied bitmap. Can also
         specify a matrix (0-3) and a delay to set scroll rate.
         """
-        for step in xrange(7, -1, -1):
-            for old_row in xrange(7, 0, -1):
+        for step in range(7, -1, -1):
+            for old_row in range(7, 0, -1):
                 self.matrix[matrix].buffer[old_row *
                                            2] = self.matrix[matrix].buffer[(old_row - 1) * 2]
             new_row = (value >> (8 * step)) & 0xff
@@ -107,6 +107,6 @@ class LEDDisplay():
         while num:
             digit = num % 10
             digits.append(digit)
-            num /= 10
+            num //= 10
         for i, d in enumerate(reversed(digits)):
             render_fn(LED8x8ICONS['{0}'.format(d)], i)

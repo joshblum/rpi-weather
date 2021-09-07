@@ -36,10 +36,10 @@ def update_display(display, new_val, old_val):
         return
     if new_val == old_val:
         return
-    for i in xrange(3, -1, -1):
+    for i in range(3, -1, -1):
         new_d = new_val % 10
         display.scroll_raw64(ICONS['{0}'.format(new_d)], i)
-        new_val /= 10
+        new_val //= 10
 
 
 # -------------------------------------------------------------------------------

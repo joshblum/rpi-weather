@@ -59,7 +59,7 @@ ICON_MAP = {  # Day forecast codes only
 
 def giveup():
     """Action to take if anything bad happens."""
-    for matrix in xrange(4):
+    for matrix in range(4):
         display.set_raw64(LED8x8ICONS['UNKNOWN'], matrix)
     print "Error occured."
     sys.exit(1)
@@ -98,7 +98,7 @@ def get_forecast():
     ))  # Inlcudes day & night weather for 5 days (including today)
     forecast = []
     # Only looking for day weather for first 4 days, ignoring night and 5th day
-    for day in xrange(4):
+    for day in range(4):
         forecast.append(json_data["SiteRep"]["DV"]
                         ["Location"]["Period"][day]["Rep"][0]["W"])
     return forecast
@@ -124,7 +124,7 @@ def display_forecast(forecast=None):
     """Display forecast as icons on LED 8x8 matrices."""
     if forecast == None:
         return
-    for matrix in xrange(4):
+    for matrix in range(4):
         try:
             icon = ICON_MAP[int(forecast[matrix])]
             display.set_raw64(LED8x8ICONS[icon], matrix)
