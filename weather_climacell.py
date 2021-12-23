@@ -285,8 +285,18 @@ if __name__ == "__main__":
         program = [display_current_forecast]
 
     apikey, lat, lon = read_config(filename)
-    display = LEDDisplay()
-    reset_display(display)
+    display = None
+    while True:
+            try:
+               print('creating display')
+               # power through any initial I/O errors
+               display = LEDDisplay()
+               reset_display(display)
+               break
+            except:
+                traceback.print_exc()
+                time.sleep(1)
+
     forecast = None
     last_fetched = datetime.now()
     timeout = 60 * 60  # 1 hour
