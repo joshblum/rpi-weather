@@ -13,7 +13,7 @@ from led8x8icons import LED8x8ICONS
 
 
 def reset_display(display, text="BLUM"):
-    dispaly.clear_display()
+    display.clear_display()
     for matrix, icon in enumerate(text):
         display.scroll_raw64(LED8x8ICONS[icon], matrix)
 
