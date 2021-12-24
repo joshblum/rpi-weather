@@ -12,8 +12,9 @@ from Adafruit_LED_Backpack import Matrix8x8
 from led8x8icons import LED8x8ICONS
 
 
-def reset_display(display):
-    for matrix, icon in enumerate("BLUM"):
+def reset_display(display, text="BLUM"):
+    dispaly.clear_display()
+    for matrix, icon in enumerate(text):
         display.scroll_raw64(LED8x8ICONS[icon], matrix)
 
 
