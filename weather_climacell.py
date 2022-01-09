@@ -279,7 +279,11 @@ class ForecastState:
             return
 
         print('Fetching new forecast')
-        f = get_climacell_forecast(apikey, lat, lon)
+        f = None
+        try:
+            f = get_climacell_forecast(apikey, lat, lon)
+        except:
+            traceback.print_exc()
         self.last_fetched = datetime.now()
 
         # on failure don't overwrite a forecast if we have one, just set the backoff.
