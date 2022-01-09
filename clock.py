@@ -28,6 +28,7 @@ def time2int(time_struct, format24=True):
 def display_clock(display, format24=True):
     old_val = time2int(time.localtime(), format24=format24)
     display.disp_number(old_val, scroll=True)
+    return True
 
 
 def update_display(display, new_val, old_val):

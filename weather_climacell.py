@@ -8,7 +8,6 @@
 # ===============================================================================
 import requests
 import traceback
-import datetime
 import time
 import random
 import sys
@@ -170,10 +169,10 @@ def make_prediction(resp_prediction):
 
 
 def get_climacell_forecast(apikey, lat, lon):
-    resp = make_climacell_request(apikey, lat, lon)
-    resp = resp.get('data', {}).get('timelines', [])
+    response = make_climacell_request(apikey, lat, lon)
+    resp = response.get('data', {}).get('timelines', [])
     if not isinstance(resp, list) or len(resp) == 0:
-        print("unexpected response {}".format(resp))
+        print("unexpected response {}".format(response))
         return None
     intervals = resp[0].get('intervals', [])
     predictions = list(map(make_prediction, intervals))
@@ -195,12 +194,13 @@ def print_forecast(forecast=None):
 
 def display_hi_low(display, forecast=None, show_hi=True):
     """Display forecast as icons on LED 8x8 matrices."""
-    if forecast is None or len(forecast) < 1:
-        return
+    if forecast is None or not len(forecast.predictions):
+        return False
 
+    prediction = forecast.predictions[0]
     i = 0
     display.scroll_raw64(
-        LED8x8ICONS[forecast.predictions[0].condition_icon], i)
+        LED8x8ICONS[prediction[0].condition_icon], i)
 
     i = 1
     icon = 'UP_ARROW' if show_hi else 'DOWN_ARROW'
@@ -216,12 +216,13 @@ def display_hi_low(display, forecast=None, show_hi=True):
     offset = 2
     for i, d in enumerate(reversed(digits)):
         display.scroll_raw64(LED8x8ICONS['{0}'.format(d)], i + offset)
+    return True
 
 
 def display_current_forecast(display, forecast=None):
     """Display forecast as icons on LED 8x8 matrices."""
-    if forecast is None or len(forecast.predictions) < 1:
-        return
+    if forecast is None or not len(forecast.predictions):
+        return False
     prediction = forecast.predictions[0]
 
     i = 0
@@ -239,12 +240,13 @@ def display_current_forecast(display, forecast=None):
     offset = 2
     for i, d in enumerate(reversed(digits)):
         display.scroll_raw64(LED8x8ICONS['{0}'.format(d)], i + offset)
+    return True
 
 
 def display_8_hr_forecast(display, forecast=None):
     """Display forecast as icons on LED 8x8 matrices."""
     if forecast is None:
-        return
+        return False
 
     max_i = 4
     offset = len(forecast.predictions) // max_i
@@ -253,7 +255,50 @@ def display_8_hr_forecast(display, forecast=None):
             break
         condition_icon = forecast.predictions[pidx].condition_icon
         display.scroll_raw64(LED8x8ICONS[condition_icon], i)
+    return True
 
+class ForecastState:
+
+    def __init__(self, timeout):
+        self.forecast = None
+        self.last_fetched = datetime.min
+        self.last_updated = datetime.min
+        self.timeout_sec = timeout
+        self.backoff_sec = 0
+
+    def maybe_refresh(self):
+        # if we don't haven't forecast or haven't recently updated we need to attempt
+        last_update = datetime.now() - self.last_updated
+        need_update = (self.forecast is None or (last_update.total_seconds() >= self.timeout_sec))
+        if not need_update:
+            print("no update needed, last updated: {}".format(self.last_updated))
+            return
+        elapsed = datetime.now() - self.last_fetched
+        if elapsed.total_seconds() < self.backoff_sec:
+            print("skipping fetch for {} seconds".format(self.backoff_sec - elapsed.total_seconds()))
+            return
+
+        print('Fetching new forecast')
+        f = get_climacell_forecast(apikey, lat, lon)
+        self.last_fetched = datetime.now()
+
+        # on failure don't overwrite a forecast if we have one, just set the backoff.
+        if f is None:
+          if self.backoff_sec == 0:
+            self.backoff_sec = 2
+          else:
+            self.backoff_sec *= 2
+          self.backoff_sec = min(self.backoff_sec, self.timeout_sec)
+          print('unable to fetch forecast, backoff_sec: {}'.format(self.backoff_sec))
+          return
+
+        self.backoff_sec = 0
+        self.forecast = f
+        self.last_updated = datetime.now()
+        print_forecast(forecast)
+
+    def get_forecast(self):
+        return self.forecast
 
 # -------------------------------------------------------------------------------
 #  M A I N
@@ -297,23 +342,15 @@ if __name__ == "__main__":
                 traceback.print_exc()
                 time.sleep(1)
 
-    forecast = None
-    last_fetched = datetime.now()
     timeout = 60 * 60  # 1 hour
+    forecast = ForecastState(timeout)
     while True:
         for step in program:
             try:
-
-                elapsed = datetime.now() - last_fetched
-                if elapsed.total_seconds() >= timeout or forecast is None:
-                    print('Fetching new forecast')
-                    last_fetched = datetime.now()
-                    forecast = get_climacell_forecast(apikey, lat, lon)
-                    print_forecast(forecast)
-
-                step(display, forecast)
-                time.sleep(2)
-                display.clear_display()
+                forecast.maybe_refresh()
+                if step(display, forecast.get_forecast()):
+                    time.sleep(2)
+                    display.clear_display()
             except:
                 traceback.print_exc()
                 time.sleep(2)
