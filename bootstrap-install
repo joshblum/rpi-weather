@@ -7,11 +7,20 @@ sudo raspi-config
 # dependencies
 sudo apt-get update
 sudo apt-get install build-essential python-dev
-sudo apt-get install python-smbus python-pil
-git clone https://github.com/adafruit/Adafruit_Python_LED_Backpack.git
-cd Adafruit_Python_LED_Backpack && sudo python3 setup.py install
+sudo apt-get install python3-smbus python3-pil
+if [ ! -d Adafruit_Python_LED_Backpack ]
+then
+  git clone https://github.com/adafruit/Adafruit_Python_LED_Backpack.git
+fi
 
-cd .. && git clone https://github.com/joshblum/rpi-weather.git
-echo "dependencies downloaded, please fill out climacell_cfg_template.json to run"
+(cd Adafruit_Python_LED_Backpack && sudo python3 setup.py install)
 
-cd - && rm -- "$0"
+if [ ! -d rpi-weather ]
+then
+  git clone https://github.com/joshblum/rpi-weather.git
+fi
+
+(cd rpi-weather && cp climacell_cfg_template.json climacell_cfg.json)
+echo "dependencies downloaded, please fill out climacell_cfg.json to run"
+
+rm -- "$0"

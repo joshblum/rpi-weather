@@ -121,14 +121,13 @@ class simple_utc(tzinfo):
 
 
 def make_climacell_request(apikey, lat, lon):
-    now = datetime.utcnow().replace(tzinfo=simple_utc())
     r = requests.request("GET", url, params={
         'location': "{},{}".format(lat, lon),
         'apikey': apikey,
         'units': 'imperial',
         'timesteps': '1h',
-        'startTime': now.isoformat(),
-        'endTime': (now + timedelta(hours=24)).isoformat(),
+        'startTime': "now",
+        'endTime': "nowPlus1d",
         # include but later ignore 1d to allow moonPhase -_-
         'timesteps': ['1h', '1d'],
         'fields': ['temperatureApparent', 'weatherCode', 'moonPhase'],
@@ -174,10 +173,13 @@ def get_climacell_forecast(apikey, lat, lon):
     if not isinstance(resp, list) or len(resp) == 0:
         print("unexpected response {}".format(response))
         return None
-    intervals = resp[0].get('intervals', [])
-    predictions = list(map(make_prediction, intervals))
-    # restrict this to just the next 8 hours
-    return Forecast(predictions=predictions[:8])
+    for d in resp:
+        if d.get('timestep]', '') == '1h':
+            intervals = d.get('intervals', [])
+            predictions = list(map(make_prediction, intervals))
+            # restrict this to just the next 8 hours
+            return Forecast(predictions=predictions[:8])
+    return None
 
 
 def print_forecast(forecast=None):
@@ -299,7 +301,7 @@ class ForecastState:
         self.backoff_sec = 0
         self.forecast = f
         self.last_updated = datetime.now()
-        print_forecast(forecast)
+        print_forecast(self.forecast)
 
     def get_forecast(self):
         return self.forecast
