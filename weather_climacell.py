@@ -174,11 +174,12 @@ def get_climacell_forecast(apikey, lat, lon):
         print("unexpected response {}".format(response))
         return None
     for d in resp:
-        if d.get('timestep]', '') == '1h':
+        if d.get('timestep', '') == '1h':
             intervals = d.get('intervals', [])
             predictions = list(map(make_prediction, intervals))
             # restrict this to just the next 8 hours
             return Forecast(predictions=predictions[:8])
+    print("unexpected response {}".format(response))
     return None
 
 
