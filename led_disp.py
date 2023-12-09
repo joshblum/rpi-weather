@@ -97,18 +97,16 @@ class LEDDisplay():
         if not self.is_valid_matrix(matrix):
             return
         auto_write = self.matrices[matrix]._auto_write
-        self.matrices[matrix]._auto_write = False
         for y in range(7, -1, -1):
+            sleep(delay)
+            self.matrices[matrix].shift_up()
+            self.matrices[matrix]._auto_write = False
             row_byte = value >> (8 * y)
             for x in range(8):
                 pixel_bit = row_byte >> x & 0x01
                 self.matrices[matrix][x, 0] = pixel_bit
-            sleep(delay)
             self.matrices[matrix]._auto_write = auto_write
-            if auto_write:
-                self.matrices[matrix].show()
-            if y > 0:
-                self.matrices[matrix].shift_up()
+        self.matrices[matrix].show()
 
     def disp_number(self, number, scroll=False, padding=LEDDisplayPadding.NONE):
         """
