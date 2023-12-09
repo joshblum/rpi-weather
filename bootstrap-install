@@ -8,12 +8,7 @@ sudo raspi-config
 sudo apt-get update
 sudo apt-get install build-essential python-dev
 sudo apt-get install python3-smbus python3-pil
-if [ ! -d Adafruit_Python_LED_Backpack ]
-then
-  git clone https://github.com/adafruit/Adafruit_Python_LED_Backpack.git
-fi
-
-(cd Adafruit_Python_LED_Backpack && sudo python3 setup.py install)
+pip3 install adafruit-circuitpython-ht16k33
 
 if [ ! -d rpi-weather ]
 then

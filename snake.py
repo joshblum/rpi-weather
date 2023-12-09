@@ -1,4 +1,3 @@
-from Adafruit_LED_Backpack import Matrix8x8
 from led8x8icons import LED8x8ICONS
 from led_disp import LEDDisplay
 from threading import Thread

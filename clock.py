@@ -9,7 +9,7 @@
 # ===============================================================================
 import time
 
-from led_disp import LEDDisplay
+from led_disp import LEDDisplay, LEDDisplayPadding, reset_display
 from led8x8icons import LED8x8ICONS as ICONS
 
 def time2int(time_struct, format24=True):
@@ -27,7 +27,8 @@ def time2int(time_struct, format24=True):
 
 def display_clock(display, format24=True):
     old_val = time2int(time.localtime(), format24=format24)
-    display.disp_number(old_val, scroll=True)
+    padding = LEDDisplayPadding.PAD_ZEROS if format24 else LEDDisplayPadding.PAD_EMPTY
+    display.disp_number(old_val, scroll=True, padding=padding)
     return True
 
 
@@ -42,17 +43,16 @@ def update_display(display, new_val, old_val):
         display.scroll_raw64(ICONS['{0}'.format(new_d)], i)
         new_val //= 10
 
-
 # -------------------------------------------------------------------------------
 #  M A I N
 # -------------------------------------------------------------------------------
 if __name__ == '__main__':
-    old_val = time2int(time.localtime())
     display = LEDDisplay()
-    display.disp_number(old_val)
+    reset_display(display)
+    time.sleep(5)
     while True:
         """Loop forever, updating every 2 seconds."""
-        new_val = time2int(time.localtime())
-        update_display(display, new_val, old_val)
-        old_val = new_val
+        display_clock(display, format24=True)
+        time.sleep(2)
+        display_clock(display, format24=False)
         time.sleep(2)
