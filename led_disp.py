@@ -90,7 +90,7 @@ class LEDDisplay():
                 self.matrices[matrix][x, y] = pixel_bit
         self.show(matrix)
 
-    def scroll_raw64(self, value, matrix=0, delay=0.10):
+    def scroll_raw64(self, value, matrix=0, delay=0.12):
         """Scroll out the current bitmap with the supplied bitmap. Can also
         specify a matrix (0-3) and a delay to set scroll rate.
         """
