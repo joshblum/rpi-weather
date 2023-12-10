@@ -90,8 +90,8 @@ class Nutrient(Piece):
 
     @staticmethod
     def new_random(width, height):
-        dx = random.randint(0, width - 1)
-        dy = random.randint(0, height - 1)
+        dx = int(random.randint(0, width - 1))
+        dy = int(random.randint(0, height - 1))
         return Nutrient(dx, dy)
 
     def __str__(self):
@@ -312,12 +312,11 @@ class PiDisp(Game):
     def render(self):
         for y, row in enumerate(self.board.array):
             for x, value in enumerate(row):
-                matrix = x / 8
+                matrix = x // 8
                 self.display.set_pixel(
-                    x % 8, y % 8, matrix=matrix, value=value, autowrite=False
+                    x % 8, y % 8, matrix=matrix, value=value, auto_write=False
                 )
-        for matrix in range(len(self.display.matrix)):
-            self.display.write_display(matrix)
+        self.display.show()
 
     def render_end(self):
         for matrix in range(len(self.display.matrix)):

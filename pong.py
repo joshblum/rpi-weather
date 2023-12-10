@@ -267,12 +267,11 @@ class PiPong(Pong):
     def render(self):
         for y, row in enumerate(self.board.array):
             for x, value in enumerate(row):
-                matrix = x / 8
+                matrix = x // 8
                 self.display.set_pixel(
-                    x % 8, y % 8, matrix=matrix, value=value, autowrite=False
+                    x % 8, y % 8, matrix=matrix, value=value, auto_write=False
                 )
-        for matrix in range(len(self.display.matrix)):
-            self.display.write_display(matrix)
+        self.display.show()
 
     def render_end_game(self):
         for matrix in range(len(self.display.matrix)):

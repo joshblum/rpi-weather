@@ -76,10 +76,12 @@ class LEDDisplay:
         with self.with_auto_write(matrix=matrix, auto_write=auto_write):
             self.matrices[matrix][x, y] = value
 
-    def show(self, matrix):
-        if not self.is_valid_matrix(matrix):
-            return
-        self.matrices[matrix].show()
+    def show(self, matrix=None):
+        if matrix == None:
+            for m in self.matrices:
+                m.show()
+        elif self.is_valid_matrix(matrix):
+            self.matrices[matrix].show()
 
     def set_bitmap(self, bitmap, matrix=0):
         """Set specified matrix to provided bitmap."""
