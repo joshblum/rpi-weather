@@ -11,7 +11,6 @@ DEFAULT_BOARD_HEIGHT = 8
 
 
 class Point(object):
-
     def __init__(self, dx, dy, vx=0, vy=0, max_vx=2, max_vy=2):
         self.dx = dx
         self.dy = dy
@@ -38,7 +37,6 @@ class Point(object):
 
 
 class Piece(object):
-
     def __init__(self, width, height, initial_point):
         self.width = width
         self.height = height
@@ -79,7 +77,6 @@ class Piece(object):
 
 
 class Ball(Piece):
-
     def __init__(self, initial_point, width=1, height=1):
         super(Ball, self).__init__(width, height, initial_point)
 
@@ -89,7 +86,6 @@ class Ball(Piece):
 
 
 class Player(Piece):
-
     def __init__(self, upkey, downkey, initial_point, width=1, height=3):
         super(Player, self).__init__(width, height, initial_point)
         self.upkey = upkey
@@ -103,17 +99,20 @@ class Player(Piece):
 
     def step(self):
         old_pos, new_pos = super(Player, self).step()
-        self.set_vy(self.get_vy() * .3)
+        self.set_vy(self.get_vy() * 0.3)
         return old_pos, new_pos
 
 
 class Board(object):
-
-    def __init__(self, player1, player2, ball,
-                 width=DEFAULT_BOARD_WIDTH,
-                 height=DEFAULT_BOARD_HEIGHT,
-                 max_resets=5
-                 ):
+    def __init__(
+        self,
+        player1,
+        player2,
+        ball,
+        width=DEFAULT_BOARD_WIDTH,
+        height=DEFAULT_BOARD_HEIGHT,
+        max_resets=5,
+    ):
         self.width = width
         self.height = height
         self.running = False
@@ -201,7 +200,6 @@ class Board(object):
 
 
 class Pong(object):
-
     def __init__(self, board):
         self.board = board
         self.running = False
@@ -216,7 +214,7 @@ class Pong(object):
             if self.board.exceeded_max_resets():
                 self.render_end_game()
                 self.stop_game()
-            time.sleep(.05)
+            time.sleep(0.05)
 
     def stop_game(self):
         self.running = False
@@ -236,7 +234,6 @@ class Pong(object):
 
 
 class TermPong(Pong):
-
     def __init__(self, board, screen):
         super(TermPong, self).__init__(board)
         self.screen = screen
@@ -262,7 +259,6 @@ class TermPong(Pong):
 
 
 class PiPong(Pong):
-
     def __init__(self, board, screen):
         super(PiPong, self).__init__(board)
         self.display = LEDDisplay()
@@ -272,14 +268,15 @@ class PiPong(Pong):
         for y, row in enumerate(self.board.array):
             for x, value in enumerate(row):
                 matrix = x / 8
-                self.display.set_pixel(x % 8, y % 8,
-                                       matrix=matrix, value=value, write=False)
+                self.display.set_pixel(
+                    x % 8, y % 8, matrix=matrix, value=value, autowrite=False
+                )
         for matrix in range(len(self.display.matrix)):
             self.display.write_display(matrix)
 
     def render_end_game(self):
         for matrix in range(len(self.display.matrix)):
-            self.display.set_raw64(LED8x8ICONS['UNKNOWN'], matrix)
+            self.display.set_raw64(LED8x8ICONS["UNKNOWN"], matrix)
 
 
 def main():
@@ -293,23 +290,25 @@ def main():
     screen.keypad(True)
 
     # starts on the left side, centered vertically at rest
-    player1 = Player(ord('w'), ord('s'),
-                     Point(0, DEFAULT_BOARD_HEIGHT / 2))
+    player1 = Player(ord("w"), ord("s"), Point(0, DEFAULT_BOARD_HEIGHT / 2))
     # starts on the right side, centered vertically at rest
-    player2 = Player(curses.KEY_UP, curses.KEY_DOWN,
-                     Point(DEFAULT_BOARD_WIDTH - 1, DEFAULT_BOARD_HEIGHT / 2))
+    player2 = Player(
+        curses.KEY_UP,
+        curses.KEY_DOWN,
+        Point(DEFAULT_BOARD_WIDTH - 1, DEFAULT_BOARD_HEIGHT / 2),
+    )
 
     # starts in the center heading left
-    ball = Ball(Point(DEFAULT_BOARD_WIDTH / 2,
-                      DEFAULT_BOARD_HEIGHT / 2, -1, 0))
+    ball = Ball(Point(DEFAULT_BOARD_WIDTH / 2, DEFAULT_BOARD_HEIGHT / 2, -1, 0))
     board = Board(player1, player2, ball)
-    window = curses.newwin(DEFAULT_BOARD_HEIGHT + 1,
-                           DEFAULT_BOARD_WIDTH + 1, 0, 0)
+    window = curses.newwin(DEFAULT_BOARD_HEIGHT + 1, DEFAULT_BOARD_WIDTH + 1, 0, 0)
     try:
         # pong = TermPong(board, window)
         pong = PiPong(board, window)
 
-        def start(): return pong.start_game()
+        def start():
+            return pong.start_game()
+
         thread = Thread(target=start)
         thread.daemon = True
 

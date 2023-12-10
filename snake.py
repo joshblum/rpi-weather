@@ -11,7 +11,6 @@ DEFAULT_BOARD_HEIGHT = 8
 
 
 class Point(object):
-
     def __init__(self, dx, dy, vx, vy, max_vx=2, max_vy=2):
         self.dx = dx
         self.dy = dy
@@ -41,12 +40,11 @@ class Point(object):
 
     def __str__(self):
         return "<Point at dx={}, dy={}, vx={}, vy={}>".format(
-                self.dx, self.dy,
-                self.vx, self.vy)
+            self.dx, self.dy, self.vx, self.vy
+        )
 
 
 class Piece(object):
-
     def __init__(self, width, height, initial_point):
         self.width = width
         self.height = height
@@ -87,10 +85,8 @@ class Piece(object):
 
 
 class Nutrient(Piece):
-
     def __init__(self, dx, dy):
-        return super(Nutrient, self).__init__(1, 1,
-                                              Point(dx, dy, 0, 0))
+        return super(Nutrient, self).__init__(1, 1, Point(dx, dy, 0, 0))
 
     @staticmethod
     def new_random(width, height):
@@ -103,7 +99,6 @@ class Nutrient(Piece):
 
 
 class Snake(Piece):
-
     def __init__(self, initial_point):
         super(Snake, self).__init__(1, 1, initial_point)
         self.arr = [self.point]
@@ -118,10 +113,7 @@ class Snake(Piece):
     def get_position(self):
         coords = []
         for point in self.arr:
-            coords.append(
-                list(map(
-                    lambda x: int(x), (point.dx, point.dy))
-                ))
+            coords.append(list(map(lambda x: int(x), (point.dx, point.dy))))
         return coords
 
     def reset(self):
@@ -166,12 +158,14 @@ class Snake(Piece):
 
 
 class Board(object):
-
-    def __init__(self, snake, nutrient=None,
-                 width=DEFAULT_BOARD_WIDTH,
-                 height=DEFAULT_BOARD_HEIGHT,
-                 max_resets=5,
-                 ):
+    def __init__(
+        self,
+        snake,
+        nutrient=None,
+        width=DEFAULT_BOARD_WIDTH,
+        height=DEFAULT_BOARD_HEIGHT,
+        max_resets=5,
+    ):
         self.snake = snake
         if nutrient is None:
             nutrient = Nutrient.new_random(width, height)
@@ -220,8 +214,7 @@ class Board(object):
         if is_nutrient:
             self.snake.append_head(x, y)
             # TODO make sure no collision with snake?
-            self.nutrient = Nutrient.new_random(
-                    self.width, self.height)
+            self.nutrient = Nutrient.new_random(self.width, self.height)
         elif is_collision:
             self.reset()
             return
@@ -249,7 +242,6 @@ class Board(object):
 
 
 class Game(object):
-
     def __init__(self, board):
         self.board = board
         self.step_speed = 1
@@ -261,7 +253,7 @@ class Game(object):
             self.board.update_position(self.board.snake)
             pos = self.board.nutrient.get_position()
             self.board.set_position(pos, 1)
-            self.step_speed = .5 / len(self.board.snake)
+            self.step_speed = 0.5 / len(self.board.snake)
             self.render()
 
             if self.board.exceeded_max_resets():
@@ -287,7 +279,6 @@ class Game(object):
 
 
 class TermDisp(Game):
-
     def __init__(self, board, screen):
         super(TermDisp, self).__init__(board)
         self.screen = screen
@@ -313,7 +304,6 @@ class TermDisp(Game):
 
 
 class PiDisp(Game):
-
     def __init__(self, board, screen):
         super(PiDisp, self).__init__(board)
         self.display = LEDDisplay()
@@ -323,14 +313,15 @@ class PiDisp(Game):
         for y, row in enumerate(self.board.array):
             for x, value in enumerate(row):
                 matrix = x / 8
-                self.display.set_pixel(x % 8, y % 8,
-                                       matrix=matrix, value=value, write=False)
+                self.display.set_pixel(
+                    x % 8, y % 8, matrix=matrix, value=value, autowrite=False
+                )
         for matrix in range(len(self.display.matrix)):
             self.display.write_display(matrix)
 
     def render_end(self):
         for matrix in range(len(self.display.matrix)):
-            self.display.set_raw64(LED8x8ICONS['UNKNOWN'], matrix)
+            self.display.set_raw64(LED8x8ICONS["UNKNOWN"], matrix)
 
 
 def main():
@@ -347,12 +338,13 @@ def main():
         snake = Snake(Point(0, DEFAULT_BOARD_HEIGHT / 2, 1, 0))
 
         board = Board(snake)
-        window = curses.newwin(DEFAULT_BOARD_HEIGHT + 1,
-                               DEFAULT_BOARD_WIDTH + 1, 0, 0)
+        window = curses.newwin(DEFAULT_BOARD_HEIGHT + 1, DEFAULT_BOARD_WIDTH + 1, 0, 0)
         # game = TermDisp(board, window)
         game = PiDisp(board, window)
 
-        def start(): return game.start()
+        def start():
+            return game.start()
+
         thread = Thread(target=start)
         thread.daemon = True
 

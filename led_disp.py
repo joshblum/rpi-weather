@@ -8,6 +8,7 @@
 # ===============================================================================
 from enum import Enum
 from time import sleep
+from contextlib import contextmanager
 
 from led8x8icons import LED8x8ICONS
 
@@ -17,12 +18,14 @@ def reset_display(display, text="BLUM"):
     for matrix, icon in enumerate(text):
         display.scroll_raw64(LED8x8ICONS[icon], matrix)
 
+
 class LEDDisplayPadding(Enum):
     NONE = 0
     PAD_EMPTY = 1
     PAD_ZEROS = 2
 
-class LEDDisplay():
+
+class LEDDisplay:
     """Class for interfacing to Raspberry Pi with four Adafruit 8x8 LEDs attached."""
 
     def __init__(self, size=4, brightness=0):
@@ -40,9 +43,19 @@ class LEDDisplay():
         for m in self.matrices:
             m.brightness = brightness
 
+    @contextmanager
+    def with_auto_write(self, *args, **kwds):
+        matrix = self.matrices[kwds.get("matrix", 0)]
+        auto_write = matrix._auto_write
+        matrix._auto_write = kwds.get("auto_write", True)
+        try:
+            yield matrix
+        finally:
+            matrix._auto_write = auto_write
+
     def is_valid_matrix(self, matrix):
         """Returns True if matrix number is valid, otherwise False."""
-        return matrix >=0 and matrix <= len(self.matrices)
+        return matrix >= 0 and matrix <= len(self.matrices)
 
     def clear_display(self, matrix=None):
         """Clear specified matrix. If none specified, clear all."""
@@ -56,13 +69,12 @@ class LEDDisplay():
             self.matrices[matrix].fill(0)
             self.matrices[matrix].show()
 
-    def set_pixel(self, x, y, matrix=0, value=1, write=True):
+    def set_pixel(self, x, y, matrix=0, value=1, auto_write=True):
         """Set pixel at position x, y for specified matrix to the given value."""
         if not self.is_valid_matrix(matrix):
             return
-        self.matrices[matrix][x, y] = value
-        if write:
-            self.matrices[matrix].show()
+        with self.with_auto_write(matrix=matrix, auto_write=auto_write):
+            self.matrices[matrix][x, y] = value
 
     def show(self, matrix):
         if not self.is_valid_matrix(matrix):
@@ -100,12 +112,11 @@ class LEDDisplay():
         for y in range(7, -1, -1):
             sleep(delay)
             self.matrices[matrix].shift_up()
-            self.matrices[matrix]._auto_write = False
-            row_byte = value >> (8 * y)
-            for x in range(8):
-                pixel_bit = row_byte >> x & 0x01
-                self.matrices[matrix][x, 0] = pixel_bit
-            self.matrices[matrix]._auto_write = auto_write
+            with self.with_auto_write(matrix=matrix, auto_write=False):
+                row_byte = value >> (8 * y)
+                for x in range(8):
+                    pixel_bit = row_byte >> x & 0x01
+                    self.matrices[matrix][x, 0] = pixel_bit
         self.matrices[matrix].show()
 
     def disp_number(self, number, scroll=False, padding=LEDDisplayPadding.NONE):
@@ -128,5 +139,5 @@ class LEDDisplay():
         else:
             render_fn = self.set_raw64
         self.clear_display()
-        for i, d in enumerate(pad+num):
-            render_fn(LED8x8ICONS['{0}'.format(d)], i)
+        for i, d in enumerate(pad + num):
+            render_fn(LED8x8ICONS["{0}".format(d)], i)
