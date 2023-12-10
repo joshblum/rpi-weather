@@ -12,6 +12,7 @@ import time
 from led_disp import LEDDisplay, LEDDisplayPadding, reset_display
 from led8x8icons import LED8x8ICONS as ICONS
 
+
 def time2int(time_struct, format24=True):
     """Convert time, passed in as a time.struct_time object, to an integer with
     hours in the hundreds place and minutes in the units place. Returns 24
@@ -24,6 +25,7 @@ def time2int(time_struct, format24=True):
     if not format24:
         h = h if h <= 12 else h - 12
     return h * 100 + m
+
 
 def display_clock(display, format24=True):
     old_val = time2int(time.localtime(), format24=format24)
@@ -40,13 +42,14 @@ def update_display(display, new_val, old_val):
         return
     for i in range(3, -1, -1):
         new_d = new_val % 10
-        display.scroll_raw64(ICONS['{0}'.format(new_d)], i)
+        display.scroll_raw64(ICONS["{0}".format(new_d)], i)
         new_val //= 10
+
 
 # -------------------------------------------------------------------------------
 #  M A I N
 # -------------------------------------------------------------------------------
-if __name__ == '__main__':
+if __name__ == "__main__":
     display = LEDDisplay()
     reset_display(display)
     time.sleep(5)

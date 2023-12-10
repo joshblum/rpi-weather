@@ -31,7 +31,7 @@ ICON_MAP = {
     "clear-night": "UNKNOWN",  # moon?
     "rain": "RAIN",
     "snow": "SNOW",
-    "sleet": "UNKNOWN",
+    "sleet": "UNKNOWN" ,
     "wind": "UNKNOWN",
     "fog": "UNKNOWN",
     "cloudy": "CLOUD",

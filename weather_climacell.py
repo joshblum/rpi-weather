@@ -21,95 +21,95 @@ from led8x8icons import LED8x8ICONS
 
 
 url = "https://api.tomorrow.io/v4/timelines"
-icons = ['SUNNY', 'RAIN', 'CLOUD', 'SHOWERS', 'SNOW', 'STORM']
+icons = ["SUNNY", "RAIN", "CLOUD", "SHOWERS", "SNOW", "STORM"]
 synonym_map = {
-    'SUNNY': [
-        'MOSTLY_CLEAR',
-        'CLEAR',
+    "SUNNY": [
+        "MOSTLY_CLEAR",
+        "CLEAR",
     ],
-    'RAIN': [
-        'RAIN',
-        'RAIN_LIGHT',
+    "RAIN": [
+        "RAIN",
+        "RAIN_LIGHT",
     ],
-    'CLOUD': [
-        'CLOUDY',
-        'MOSTLY_CLOUDY',
-        'PARTLY_CLOUDY',
+    "CLOUD": [
+        "CLOUDY",
+        "MOSTLY_CLOUDY",
+        "PARTLY_CLOUDY",
     ],
-    'SHOWERS': [
-        'DRIZZLE',
-        'FOG_LIGHT',
-        'FOG',
+    "SHOWERS": [
+        "DRIZZLE",
+        "FOG_LIGHT",
+        "FOG",
     ],
-    'SNOW': [
-        'FREEZING_RAIN_HEAVY',
-        'FREEZING_RAIN',
-        'FREEZING_RAIN_LIGHT',
-        'FREEZING_DRIZZLE',
-        'ICE_PELLETS_HEAVY',
-        'ICE_PELLETS',
-        'ICE_PELLETS_LIGHT',
-        'SNOW_HEAVY',
-        'SNOW',
-        'SNOW_LIGHT',
-        'FLURRIES',
+    "SNOW": [
+        "FREEZING_RAIN_HEAVY",
+        "FREEZING_RAIN",
+        "FREEZING_RAIN_LIGHT",
+        "FREEZING_DRIZZLE",
+        "ICE_PELLETS_HEAVY",
+        "ICE_PELLETS",
+        "ICE_PELLETS_LIGHT",
+        "SNOW_HEAVY",
+        "SNOW",
+        "SNOW_LIGHT",
+        "FLURRIES",
     ],
-    'STORM': [
-        'RAIN_HEAVY',
-        'TSTORM',
+    "STORM": [
+        "RAIN_HEAVY",
+        "TSTORM",
     ],
 }
 
 # https://docs.tomorrow.io/reference/data-layers-overview
 moon_phase_map = {
-  0: "NEW",
-  1: "WAXING_CRESCENT",
-  2: "FIRST_QUARTER",
-  3: "WAXING_GIBBOUS",
-  4: "FULL",
-  5: "WANING_GIBBOUS",
-  6: "LAST_QUARTER",
-  7: "WANING_CRESCENT"
+    0: "NEW",
+    1: "WAXING_CRESCENT",
+    2: "FIRST_QUARTER",
+    3: "WAXING_GIBBOUS",
+    4: "FULL",
+    5: "WANING_GIBBOUS",
+    6: "LAST_QUARTER",
+    7: "WANING_CRESCENT",
 }
 
 weather_code_map = {
-  0: "UNKNOWN",
-  1000: "SUNNY",
-  1001: "CLOUD",
-  1100: "MOSTLY_CLEAR",
-  1101: "PARTLY_CLOUDY",
-  1102: "MOSTLY_CLOUDY",
-  2000: "FOG",
-  2100: "FOG_LIGHT",
-  3000: "SUNNY", # light wind
-  3001: "SUNNY", # wind
-  3002: "SUNNY", # strong wind
-  4000: "DRIZZLE",
-  4001: "RAIN",
-  4200: "RAIN_LIGHT",
-  4201: "RAIN_HEAVY",
-  5000: "SNOW",
-  5001: "FLURRIES",
-  5100: "SNOW_LIGHT",
-  5101: "SNOW_HEAVY",
-  6000: "FREEZING_DRIZZLE",
-  6001: "FREEZING_RAIN",
-  6200: "FREEZING_RAIN_LIGHT",
-  6201: "FREEZEING_RAIN_HEAVY",
-  7000: "ICE_PELLETS",
-  7101: "ICE_PELLETS_HEAVY",
-  7102: "ICE_PELLETS_LIGHT",
-  8000: "TSTORM"
+    0: "UNKNOWN",
+    1000: "SUNNY",
+    1001: "CLOUD",
+    1100: "MOSTLY_CLEAR",
+    1101: "PARTLY_CLOUDY",
+    1102: "MOSTLY_CLOUDY",
+    2000: "FOG",
+    2100: "FOG_LIGHT",
+    3000: "SUNNY",  # light wind
+    3001: "SUNNY",  # wind
+    3002: "SUNNY",  # strong wind
+    4000: "DRIZZLE",
+    4001: "RAIN",
+    4200: "RAIN_LIGHT",
+    4201: "RAIN_HEAVY",
+    5000: "SNOW",
+    5001: "FLURRIES",
+    5100: "SNOW_LIGHT",
+    5101: "SNOW_HEAVY",
+    6000: "FREEZING_DRIZZLE",
+    6001: "FREEZING_RAIN",
+    6200: "FREEZING_RAIN_LIGHT",
+    6201: "FREEZEING_RAIN_HEAVY",
+    7000: "ICE_PELLETS",
+    7101: "ICE_PELLETS_HEAVY",
+    7102: "ICE_PELLETS_LIGHT",
+    8000: "TSTORM",
 }
 
-Prediction = namedtuple('Prediction', ['temp', 'condition_icon', 'moon_icon'])
-Forecast = namedtuple('Forecast', ['predictions'])
+Prediction = namedtuple("Prediction", ["temp", "condition_icon", "moon_icon"])
+Forecast = namedtuple("Forecast", ["predictions"])
 
 
 def read_config(filename):
     with open(filename) as f:
         data = json.load(f)
-        return data['apikey'], data['lat'], data['lon']
+        return data["apikey"], data["lat"], data["lon"]
 
 
 class simple_utc(tzinfo):
@@ -121,17 +121,21 @@ class simple_utc(tzinfo):
 
 
 def make_climacell_request(apikey, lat, lon):
-    r = requests.request("GET", url, params={
-        'location': "{},{}".format(lat, lon),
-        'apikey': apikey,
-        'units': 'imperial',
-        'timesteps': '1h',
-        'startTime': "now",
-        'endTime': "nowPlus1d",
-        # include but later ignore 1d to allow moonPhase -_-
-        'timesteps': ['1h', '1d'],
-        'fields': ['temperatureApparent', 'weatherCode', 'moonPhase'],
-    })
+    r = requests.request(
+        "GET",
+        url,
+        params={
+            "location": "{},{}".format(lat, lon),
+            "apikey": apikey,
+            "units": "imperial",
+            "timesteps": "1h",
+            "startTime": "now",
+            "endTime": "nowPlus1d",
+            # include but later ignore 1d to allow moonPhase -_-
+            "timesteps": ["1h", "1d"],
+            "fields": ["temperatureApparent", "weatherCode", "moonPhase"],
+        },
+    )
     return r.json()
 
 
@@ -143,13 +147,14 @@ def normalize_condition_icon(condition):
         for synonym in synonyms:
             if synonym in condition:
                 return icon
-    print('Missing icon for daily forecast', condition)
-    return 'UNKNOWN'
+    print("Missing icon for daily forecast", condition)
+    return "UNKNOWN"
 
 
 def get_condition_icon(resp_prediction):
     return normalize_condition_icon(
-       weather_code_map.get(resp_prediction.get("weatherCode", 0), 'UNKNOWN'))
+        weather_code_map.get(resp_prediction.get("weatherCode", 0), "UNKNOWN")
+    )
 
 
 def get_moon_icon(resp_prediction):
@@ -161,21 +166,23 @@ def get_temp(resp_prediction):
 
 
 def make_prediction(resp_prediction):
-    resp_prediction = resp_prediction.get('values')
-    return Prediction(condition_icon=get_condition_icon(resp_prediction),
-                      moon_icon=get_moon_icon(resp_prediction),
-                      temp=get_temp(resp_prediction))
+    resp_prediction = resp_prediction.get("values")
+    return Prediction(
+        condition_icon=get_condition_icon(resp_prediction),
+        moon_icon=get_moon_icon(resp_prediction),
+        temp=get_temp(resp_prediction),
+    )
 
 
 def get_climacell_forecast(apikey, lat, lon):
     response = make_climacell_request(apikey, lat, lon)
-    resp = response.get('data', {}).get('timelines', [])
+    resp = response.get("data", {}).get("timelines", [])
     if not isinstance(resp, list) or len(resp) == 0:
         print("unexpected response {}".format(response))
         return None
     for d in resp:
-        if d.get('timestep', '') == '1h':
-            intervals = d.get('intervals', [])
+        if d.get("timestep", "") == "1h":
+            intervals = d.get("intervals", [])
             predictions = list(map(make_prediction, intervals))
             # restrict this to just the next 8 hours
             return Forecast(predictions=predictions[:8])
@@ -185,11 +192,11 @@ def get_climacell_forecast(apikey, lat, lon):
 
 def print_forecast(forecast=None):
     """Print forecast to screen."""
-    print('-' * 20)
-    print(time.strftime('%Y/%m/%d %H:%M:%S'))
-    print('-' * 20)
+    print("-" * 20)
+    print(time.strftime("%Y/%m/%d %H:%M:%S"))
+    print("-" * 20)
     if forecast is None:
-        print('null forecast')
+        print("null forecast")
     else:
         for p in forecast.predictions:
             print(p)
@@ -202,18 +209,17 @@ def display_hi_low(display, forecast=None, show_hi=True):
 
     prediction = forecast.predictions[0]
     i = 0
-    display.scroll_raw64(
-        LED8x8ICONS[prediction[0].condition_icon], i)
+    display.scroll_raw64(LED8x8ICONS[prediction[0].condition_icon], i)
 
     i = 1
-    icon = 'UP_ARROW' if show_hi else 'DOWN_ARROW'
+    icon = "UP_ARROW" if show_hi else "DOWN_ARROW"
     display.scroll_raw64(LED8x8ICONS[icon], i)
 
     fn = max if show_hi else min
     temp = str(fn(forecast.predictions, key=lambda x: x.temp).temp)
     offset = 2 if len(temp) == 2 else 1
     for i, d in enumerate(temp):
-        display.scroll_raw64(LED8x8ICONS['{0}'.format(d)], i + offset)
+        display.scroll_raw64(LED8x8ICONS["{0}".format(d)], i + offset)
     return True
 
 
@@ -233,7 +239,7 @@ def display_current_forecast(display, forecast=None):
     digits = []
     offset = 2 if len(temp) == 2 else 1
     for i, d in enumerate(temp):
-        display.scroll_raw64(LED8x8ICONS['{0}'.format(d)], i + offset)
+        display.scroll_raw64(LED8x8ICONS["{0}".format(d)], i + offset)
     return True
 
 
@@ -251,8 +257,8 @@ def display_8_hr_forecast(display, forecast=None):
         display.scroll_raw64(LED8x8ICONS[condition_icon], i)
     return True
 
-class ForecastState:
 
+class ForecastState:
     def __init__(self, timeout):
         self.forecast = None
         self.last_fetched = datetime.min
@@ -263,16 +269,22 @@ class ForecastState:
     def maybe_refresh(self):
         # if we don't haven't forecast or haven't recently updated we need to attempt
         last_update = datetime.now() - self.last_updated
-        need_update = (self.forecast is None or (last_update.total_seconds() >= self.timeout_sec))
+        need_update = self.forecast is None or (
+            last_update.total_seconds() >= self.timeout_sec
+        )
         if not need_update:
             print("no update needed, last updated: {}".format(self.last_updated))
             return
         elapsed = datetime.now() - self.last_fetched
         if elapsed.total_seconds() < self.backoff_sec:
-            print("skipping fetch for {} seconds".format(self.backoff_sec - elapsed.total_seconds()))
+            print(
+                "skipping fetch for {} seconds".format(
+                    self.backoff_sec - elapsed.total_seconds()
+                )
+            )
             return
 
-        print('Fetching new forecast')
+        print("Fetching new forecast")
         f = None
         try:
             f = get_climacell_forecast(apikey, lat, lon)
@@ -282,13 +294,13 @@ class ForecastState:
 
         # on failure don't overwrite a forecast if we have one, just set the backoff.
         if f is None:
-          if self.backoff_sec == 0:
-            self.backoff_sec = 2
-          else:
-            self.backoff_sec *= 2
-          self.backoff_sec = min(self.backoff_sec, self.timeout_sec)
-          print('unable to fetch forecast, backoff_sec: {}'.format(self.backoff_sec))
-          return
+            if self.backoff_sec == 0:
+                self.backoff_sec = 2
+            else:
+                self.backoff_sec *= 2
+            self.backoff_sec = min(self.backoff_sec, self.timeout_sec)
+            print("unable to fetch forecast, backoff_sec: {}".format(self.backoff_sec))
+            return
 
         self.backoff_sec = 0
         self.forecast = f
@@ -298,6 +310,7 @@ class ForecastState:
     def get_forecast(self):
         return self.forecast
 
+
 # -------------------------------------------------------------------------------
 #  M A I N
 # -------------------------------------------------------------------------------
@@ -305,24 +318,23 @@ if __name__ == "__main__":
     if len(sys.argv) > 1:
         filename = sys.argv[1]
     else:
-        filename = 'climacell_cfg.json'
+        filename = "climacell_cfg.json"
 
     programs = {
-        'clock': lambda d, f: display_clock(d),
-        'clock_12': lambda d, f: display_clock(d, format24=False),
-        'clock_24': lambda d, f: display_clock(d, format24=True),
-        'hi_forecast': lambda d, f: display_hi_low(d, f, show_hi=False),
-        'low_forecast': display_hi_low,
-        'current_forecast': display_current_forecast,
-        '8_hr_forecast': display_8_hr_forecast,
+        "clock": lambda d, f: display_clock(d),
+        "clock_12": lambda d, f: display_clock(d, format24=False),
+        "clock_24": lambda d, f: display_clock(d, format24=True),
+        "hi_forecast": lambda d, f: display_hi_low(d, f, show_hi=False),
+        "low_forecast": display_hi_low,
+        "current_forecast": display_current_forecast,
+        "8_hr_forecast": display_8_hr_forecast,
     }
     program = []
     for arg in sys.argv[2:]:
         if arg in programs:
             program.append(programs[arg])
         else:
-            raise Exception(
-                "expected one of {}, found {}".format(programs.keys(), arg))
+            raise Exception("expected one of {}, found {}".format(programs.keys(), arg))
 
     if not len(program):
         program = [display_current_forecast]
@@ -330,15 +342,15 @@ if __name__ == "__main__":
     apikey, lat, lon = read_config(filename)
     display = None
     while True:
-            try:
-               print('creating display')
-               # power through any initial I/O errors
-               display = LEDDisplay()
-               reset_display(display)
-               break
-            except:
-                traceback.print_exc()
-                time.sleep(1)
+        try:
+            print("creating display")
+            # power through any initial I/O errors
+            display = LEDDisplay()
+            reset_display(display)
+            break
+        except:
+            traceback.print_exc()
+            time.sleep(1)
 
     timeout = 60 * 60  # 1 hour
     forecast = ForecastState(timeout)

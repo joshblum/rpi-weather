@@ -32,7 +32,7 @@ ICON_MAP = {
     "Rain": "RAIN",
     "Snow": "SNOW",
     "Atmosphere": "UNKNOWN",
-    "Clear": "SUNNY",
+    "Clear": "SUNNY" ,
     "Clouds": "CLOUD",
     "Extreme": "UNKNOWN",
     "Additional": "UNKNOWN",

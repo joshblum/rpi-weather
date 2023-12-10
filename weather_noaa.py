@@ -159,7 +159,7 @@ def display_forecast(display, forecast=None, show_hi=True):
     display.scroll_raw64(LED8x8ICONS[icon], i)
 
     temp = forecast.maximum if show_hi else forecast.minimum
-    digits = []
+    digits = [ ]
     while temp > 0:
         new_d = temp % 10
         digits.append(new_d)

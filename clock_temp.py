@@ -17,7 +17,7 @@ if __name__ == "__main__":
             timeout = 60 * \
                 5 if (forecast is None or not len(
                     forecast.conditions)) else 60 * 60
-            if elapsed.total_seconds() >= timeout:
+            if elapsed.total_seconds() >= timeout :
                 print 'Fetching new forecast'
                 last_fetched = datetime.datetime.now()
                 forecast = get_noaa_forecast()

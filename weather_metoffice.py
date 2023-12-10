@@ -29,7 +29,7 @@ REQ_BASE = r"/public/data/val/wxfcs/all/json/"
 CONFIG_FILE = "weather.cfg"
 API_KEY = None
 LOCATION_ID = None
-
+ 
 ICON_MAP = {  # Day forecast codes only
     #   Met Office weather code         LED 8x8 icon
     "NA": "UNKNOWN",

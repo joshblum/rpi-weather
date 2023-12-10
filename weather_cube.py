@@ -1,7 +1,12 @@
 import sys
 import time
 from led_disp import LEDDisplay
-from weather_climacell import reset_display, get_climacell_forecast, print_forecast, read_config
+from weather_climacell import (
+    reset_display,
+    get_climacell_forecast,
+    print_forecast,
+    read_config,
+)
 from datetime import datetime
 from led8x8icons import LED8x8ICONS
 
@@ -20,7 +25,7 @@ def round_temp_to_icon(temp):
         d = temp / 10
     elif temp >= 100:
         d = 9  # approximate > 100 to 1 digit
-    icon = '{0}'.format(d)
+    icon = "{0}".format(d)
     return icon
 
 
@@ -28,7 +33,7 @@ if __name__ == "__main__":
     if len(sys.argv) > 1:
         filename = sys.argv[1]
     else:
-        filename = 'climacell_cfg.json'
+        filename = "climacell_cfg.json"
     apikey, lat, lon = read_config(filename)
     display = LEDDisplay(size=1)
     reset_display(display)
@@ -40,7 +45,7 @@ if __name__ == "__main__":
         try:
             elapsed = datetime.now() - last_fetched
             if elapsed.total_seconds() >= timeout or forecast is None:
-                print('Fetching new forecast')
+                print("Fetching new forecast")
                 last_fetched = datetime.now()
                 forecast = get_climacell_forecast(apikey, lat, lon)
                 print_forecast(forecast)
@@ -63,4 +68,4 @@ if __name__ == "__main__":
             i += 1
             i %= 3
         except Exception as e:
-            print('unhandled exception', e)
+            print("unhandled exception", e)
