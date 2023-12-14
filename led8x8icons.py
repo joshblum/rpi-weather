@@ -63,12 +63,12 @@ LED8x8ICONS = {
 #---------------------------------------------------------
 # moon phases
 #---------------------------------------------------------
-'NEW'                               : 0x0000000000000000,
+'NEW'                               : 0x003c424242423c00,
 'WAXING_CRESCENT'                   : 0x0030606060603000 ,
 'FIRST_QUARTER'                     : 0x0030707878703000 ,
-'WAXING_GIBBOUS'                    : 0x00307c7c7c7c3000 ,
+'WAXING_GIBBOUS'                    : 0x0030787c7c783000 ,
 'FULL'                              : 0x003c7e7e7e7e3c00 ,
-'WANING_GIBBOUS'                    : 0x000c3e3e3e3e0c00 ,
+'WANING_GIBBOUS'                    : 0x000c1e3e3e1e0c00 ,
 'LAST_QUARTER'                      : 0x000c0e1e1e0e0c00 ,
 'WANING_CRESCENT'                   : 0x000c060606060c00 ,
 #---------------------------------------------------------
