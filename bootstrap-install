@@ -2,13 +2,12 @@
 set -euo pipefail
 
 # https://www.raspberrypi-spy.co.uk/2014/11/enabling-the-i2c-interface-on-the-raspberry-pi/
+echo "Enable I2C via Interface Options -> I2C"
 sudo raspi-config
 
 # dependencies
-sudo apt-get update
-sudo apt-get install build-essential python-dev
-sudo apt-get install python3-smbus python3-pil
-pip3 install adafruit-circuitpython-ht16k33
+sudo apt-get install git -y
+pip3 install adafruit-circuitpython-ht16k33 requests
 
 if [ ! -d rpi-weather ]
 then

@@ -321,12 +321,12 @@ if __name__ == "__main__":
         filename = "climacell_cfg.json"
 
     programs = {
-        "clock": lambda d, f: display_clock(d),
+        "clock": lambda d, f: display_clock(d),  # 24h default
         "clock_12": lambda d, f: display_clock(d, format24=False),
         "clock_24": lambda d, f: display_clock(d, format24=True),
         "hi_forecast": lambda d, f: display_hi_low(d, f, show_hi=False),
         "low_forecast": display_hi_low,
-        "current_forecast": display_current_forecast,
+        "current_forecast": display_current_forecast,  # moon phase || current condition || temp
         "8_hr_forecast": display_8_hr_forecast,
     }
     program = []

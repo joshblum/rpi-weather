@@ -6,8 +6,7 @@ via icons on LED 8x8 matrices.
 
 # Hardware
 
-This program should work with any Raspberry Pi although I have only tested it
-with an original Model A (yes, an A). Also, any 4 Adafruit 8x8 LED
+This program should work with any Raspberry Pi. Also, any 4 Adafruit 8x8 LED
 Matrices with I2C Backpacks should work. Be sure to solder the address jumpers
 to set unique addresses for each. Expected range is 0x70-0x73.
 
@@ -24,7 +23,7 @@ A brief description of the various software components.
 - `led8x8icons.py` - contains a dictionary of icons
 - `clock.py` - displays the time, for use as a clock
 
-# Install script
+# Quick Setup
 
 To setup and install the required dependencies you can run:
 
@@ -33,21 +32,54 @@ curl -fsSLO https://raw.githubusercontent.com/joshblum/rpi-weather/master/bootst
 bash bootstrap-install
 ```
 
-Configure the pi for a network through the CLI:
-https://www.raspberrypi.org/documentation/configuration/wireless/wireless-cli.md
+# Configure (climacell.co)
 
-# Dependencies
+You will need an API key to use these services. Each website has instructions
+for how to do this. You will also need the latitude and longitude for your
+location. Once you have this info, create a file called `climacell_cfg.json`
+with the following contents:
+
+```
+{
+    "apikey": "your api key",
+    "lat": lat,
+    "lon": lon
+}
+```
+
+replacing the your info as needed. **NOTE:** west longitudes are negative,
+use decimal values for both.
+
+# Automation
+
+The easiest way to have the program run on boot is to use `cron`.
+Use `crontab -e` to add the following entry, which will run the program
+on system startup
+
+```
+@daily cd /home/pi/rpi-weather && git pull
+@reboot python /home/pi/rpi-weather/weather_climacell.py /home/pi/rpi-weather/climacell_cfg.json clock current_forecast
+```
+
+# Pi Imaging
+
+RPI Imager: https://www.raspberrypi.com/software/
+Berrylan (WiFi setup via bluetooth): https://github.com/nymea/berrylan
+
+# Manual Setup
+
+## Dependencies
 
 - Adafruit Python Library for LED Backpacks
   - https://github.com/adafruit/Adafruit_CircuitPython_HT16K33
 - Requests
   - https://2.python-requests.org/en/master/
 
-# Setup
+## Setup
 
 - Enable I0C: https://www.raspberrypi-spy.co.uk/2014/11/enabling-the-i2c-interface-on-the-raspberry-pi/
 
-# Install
+## Install
 
 Simply clone this repo and run:
 
@@ -112,38 +144,6 @@ LON: your_longitude
 
 replacing the `your_*` info as needed. **NOTE:** west longitudes are negative,
 use decimal values for both.
-
-# Configure (climacell.co)
-
-You will need an API key to use these services. Each website has instructions
-for how to do this. You will also need the latitude and longitude for your
-location. Once you have this info, create a file called `climacell_cfg.json`
-with the following contents:
-
-```
-{
-    "apikey": "your api key",
-    "lat": lat,
-    "lon": lon
-}
-```
-
-replacing the `your_*` info as needed. **NOTE:** west longitudes are negative,
-use decimal values for both.
-
-# Automation
-
-The easiest way to have the program run on boot is to use `cron`.
-Use `crontab -e` to add the following entry, which will run the program
-on system startup
-
-```
-@daily cd /home/pi/rpi-weather && git pull
-@reboot python /home/pi/rpi-weather/weather_climacell.py /home/pi/rpi-weather/climacell_cfg.json clock current_forecast
-```
-
-**NOTE:** If you installed the program in a different location, change the path
-accordingly.
 
 # NOAA REST
 
