@@ -267,7 +267,6 @@ class ForecastState:
             last_update.total_seconds() >= self.timeout_sec
         )
         if not need_update:
-            print("no update needed, last updated: {}".format(self.last_updated))
             return
         elapsed = datetime.now() - self.last_fetched
         if elapsed.total_seconds() < self.backoff_sec:
@@ -295,6 +294,7 @@ class ForecastState:
         self.forecast = f
         self.last_updated = datetime.now()
         print_forecast(self.forecast)
+        print("next update in {} seconds".format(self.timeout_sec))
 
     def get_forecast(self):
         return self.forecast
