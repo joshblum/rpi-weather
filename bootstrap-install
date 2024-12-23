@@ -7,7 +7,7 @@ sudo raspi-config
 
 # dependencies
 sudo apt-get install git -y
-pip3 install adafruit-circuitpython-ht16k33 requests
+pip3 install --user --break-system-packages adafruit-circuitpython-ht16k33 requests
 
 if [ ! -d rpi-weather ]
 then
