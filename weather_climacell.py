@@ -271,11 +271,6 @@ class ForecastState:
             return
         elapsed = datetime.now() - self.last_fetched
         if elapsed.total_seconds() < self.backoff_sec:
-            print(
-                "skipping fetch for {} seconds".format(
-                    self.backoff_sec - elapsed.total_seconds()
-                )
-            )
             return
 
         print("Fetching new forecast")
