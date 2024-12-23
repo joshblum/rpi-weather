@@ -208,16 +208,14 @@ def display_hi_low(display, forecast=None, show_hi=True):
         return False
 
     prediction = forecast.predictions[0]
-    i = 0
-    display.scroll_raw64(LED8x8ICONS[prediction[0].condition_icon], i)
+    display.scroll_raw64(LED8x8ICONS[prediction[0].condition_icon], 0)
 
-    i = 1
     icon = "UP_ARROW" if show_hi else "DOWN_ARROW"
-    display.scroll_raw64(LED8x8ICONS[icon], i)
+    display.scroll_raw64(LED8x8ICONS[icon], 1)
 
     fn = max if show_hi else min
-    temp = str(fn(forecast.predictions, key=lambda x: x.temp).temp)
-    offset = 2 if len(temp) == 2 else 1
+    temp = str(fn(forecast.predictions, key=lambda x: x.temp).temp).zfill(2)
+    offset = 1 if len(temp) == 3 else 2
     for i, d in enumerate(temp):
         display.scroll_raw64(LED8x8ICONS["{0}".format(d)], i + offset)
     return True
@@ -229,15 +227,11 @@ def display_current_forecast(display, forecast=None):
         return False
     prediction = forecast.predictions[0]
 
-    i = 0
-    display.scroll_raw64(LED8x8ICONS[prediction.moon_icon], i)
+    display.scroll_raw64(LED8x8ICONS[prediction.moon_icon], 0)
+    display.scroll_raw64(LED8x8ICONS[prediction.condition_icon], 1)
 
-    i = 1
-    display.scroll_raw64(LED8x8ICONS[prediction.condition_icon], i)
-
-    temp = str(prediction.temp)
-    digits = []
-    offset = 2 if len(temp) == 2 else 1
+    temp = str(prediction.temp).zfill(2)
+    offset = 1 if len(temp) == 3 else 2
     for i, d in enumerate(temp):
         display.scroll_raw64(LED8x8ICONS["{0}".format(d)], i + offset)
     return True
